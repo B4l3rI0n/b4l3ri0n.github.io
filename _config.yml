@@ -14,9 +14,9 @@ timezone:
 # jekyll-seo-tag settings › https://github.com/jekyll/jekyll-seo-tag/blob/master/docs/usage.md
 # ↓ --------------------------
 
-title: Chirpy # the main title
+title: B4l3rI0n # the main title
 
-tagline: A text-focused Jekyll theme # it will display as the subtitle
+tagline: I own your company # it will display as the subtitle
 
 description: >- # used by seo meta and the atom feed
   A minimal, responsive and feature-rich Jekyll theme for technical writing.
@@ -26,23 +26,23 @@ description: >- # used by seo meta and the atom feed
 url: "https://B4l3rI0n.github.io"
 
 github:
-  username: github_username # change to your GitHub username
+  username: B4l3rI0n # change to your GitHub username
 
 twitter:
-  username: twitter_username # change to your Twitter username
+  username: zyad_elsayed3 # change to your Twitter username
 
 social:
   # Change to your full name.
   # It will be displayed as the default author of the posts and the copyright owner in the Footer
-  name: your_full_name
-  email: example@domain.com # change to your email address
+  name: Zyad Elsayed
+  email: zyadelsayed92@gmail.com # change to your email address
   links:
     # The first element serves as the copyright owner's link
-    - https://twitter.com/username # change to your Twitter homepage
+    - https://twitter.com/zyad_elsayed3 # change to your Twitter homepage
     - https://github.com/username # change to your GitHub homepage
     # Uncomment below to add more social links
     # - https://www.facebook.com/username
-    # - https://www.linkedin.com/in/username
+    - https://www.linkedin.com/in/zyad-abdelbary
 
 # Site Verification Settings
 webmaster_verifications:
@@ -95,10 +95,10 @@ theme_mode: # [light | dark]
 # will be added to all media resources (site avatar, posts' images, audio and video files) paths starting with '/'
 #
 # e.g. 'https://cdn.com'
-cdn:
+cdn: 'https://firebasestorage.googleapis.com/'
 
 # the avatar on sidebar, support local or CORS resources
-avatar:
+avatar: "/v0/b/blog-11737.appspot.com/o/B4l3rI0n.jpg?alt=media&token=bbec6bc0-e71a-4ccd-ab81-1c7c159f1625"
 
 # The URL of the site-wide social preview image used in SEO `og:image` meta tag.
 # It can be overridden by a customized `page.image` in front matter.
