@@ -7,63 +7,64 @@ description: "My own created tools"
 ---
 
 <style>
+  /* Container styling */
   #tools-list {
-    display: flex;
-    flex-wrap: wrap;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
     gap: 20px;
     margin-top: 20px;
-    justify-content: space-between; /* Spread cards across the row */
-    width: 100%; /* Ensure it takes the full width of the container */
   }
 
+  /* Card styling */
   .tool-card {
     background-color: #f7f7f7;
     border-radius: 8px;
     padding: 15px;
     box-shadow: 0 2px 5px rgba(0,0,0,0.1);
     transition: transform 0.2s, box-shadow 0.2s;
-    flex: 1 1 calc(50% - 10px); /* Two cards per row with gap adjustment */
-    max-width: calc(50% - 10px); /* Ensure two cards per row */
-    min-width: 300px; /* Minimum width to prevent cards from being too narrow */
     display: flex;
     flex-direction: column;
-    box-sizing: border-box;
+    justify-content: space-between;
   }
-
-  /* Center the last card if it's the only one in the row (odd number) */
-  .tool-card:last-child:nth-child(odd) {
-    margin-left: auto;
-    margin-right: auto;
-  }
-
   .tool-card:hover {
     transform: translateY(-5px);
     box-shadow: 0 4px 10px rgba(0,0,0,0.15);
   }
 
   .tool-card h3 {
-    margin: 0 0 10px 0;
+    margin-top: 0;
     color: #333;
   }
 
+  /* Description container with slide-down/up effect */
   .description-container {
-    flex-grow: 1;
-    display: flex;
-    flex-direction: column;
+    position: relative;
+    overflow: hidden;
+    max-height: 80px; /* Collapsed height */
+    transition: max-height 0.5s ease;
+  }
+  .description-container.expanded {
+    max-height: 1000px; /* Expanded height */
   }
 
   .tool-description {
     font-size: 0.9em;
     color: #666;
     margin: 0;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    display: -webkit-box;
-    -webkit-line-clamp: 3; /* Limit to 3 lines */
-    -webkit-box-orient: vertical;
-    line-height: 1.5em; /* Adjust based on font size for consistent line height */
   }
 
+  /* Toggle button styling: just an icon, centered, black */
+  .toggle-description {
+    display: none;
+    margin: 10px auto 0;
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: #000;
+    font-size: 1.2em;
+  }
+
+  /* Filter input styling */
   #filter-input {
     padding: 8px 12px;
     width: 100%;
@@ -72,10 +73,10 @@ description: "My own created tools"
     border-radius: 4px;
   }
 
+  /* Icon styling for tool icons */
   .tool-icon {
     margin-right: 8px;
   }
-
   .icon-docker { color: #0db7ed; }
   .icon-js { color: #f0db4f; }
   .icon-python { color: #306998; }
@@ -88,7 +89,7 @@ description: "My own created tools"
   .icon-default { color: #007bff; }
 </style>
 
-<h2><i class="fas fa-tools"></i> Tools</h2>
+<h2><i class="fas fa-tools"></i>&nbsp; Tools</h2>
 <p>
   Check out my GitHub repository for a complete list of my public tools:
   <a href="https://github.com/B4l3rI0n?tab=repositories" target="_blank">B4l3rI0n</a>
@@ -143,6 +144,7 @@ description: "My own created tools"
             </h3>
             <div class="description-container">
               <p class="tool-description">${repo.description ? repo.description : "No description provided."}</p>
+              <button class="toggle-description"><i class="fas fa-chevron-down"></i></button>
             </div>
           `;
 
@@ -150,6 +152,26 @@ description: "My own created tools"
           repoCard.className = 'tool-card';
           repoCard.innerHTML = repoHTML;
           toolsList.appendChild(repoCard);
+
+          const descriptionContainer = repoCard.querySelector('.description-container');
+          const description = repoCard.querySelector('.tool-description');
+          const toggle = repoCard.querySelector('.toggle-description');
+
+          if (description.innerText.length > 80) {
+            toggle.style.display = 'block';
+            toggle.addEventListener('click', () => {
+              descriptionContainer.classList.toggle('expanded');
+              // Change icon based on state
+              if (descriptionContainer.classList.contains('expanded')) {
+                toggle.innerHTML = '<i class="fas fa-chevron-up"></i>';
+              } else {
+                toggle.innerHTML = '<i class="fas fa-chevron-down"></i>';
+              }
+            });
+          } else {
+            descriptionContainer.classList.add('expanded');
+            toggle.style.display = 'none';
+          }
         });
       } else {
         toolsList.innerHTML = "<p>No tools found.</p>";
@@ -165,25 +187,13 @@ description: "My own created tools"
     const cards = document.querySelectorAll('.tool-card');
     cards.forEach(card => {
       const title = card.querySelector('h3').innerText.toLowerCase();
-      card.style.display = title.includes(filterValue) ? 'flex' : 'none';
-    });
-
-    // Re-center the last card if it's the only one in the row after filtering
-    const visibleCards = Array.from(cards).filter(card => card.style.display !== 'none');
-    visibleCards.forEach((card, index) => {
-      if (index === visibleCards.length - 1 && visibleCards.length % 2 !== 0) {
-        card.style.marginLeft = 'auto';
-        card.style.marginRight = 'auto';
-      } else {
-        card.style.marginLeft = '0';
-        card.style.marginRight = '0';
-      }
+      card.style.display = title.includes(filterValue) ? 'block' : 'none';
     });
   }
   
   document.getElementById('filter-input').addEventListener('input', filterTools);
   loadTools();
-</script> 
+</script>
 <!-- 
 ---
 icon: fas fa-tools
@@ -571,14 +581,11 @@ description: "My own created tools"
   });
 
   loadTools();
-</script> -->
-
-
-
+</script> 
+-->
 
 
 <!-- 
-
 ---
 icon: fas fa-tools
 order: 3
@@ -588,64 +595,63 @@ description: "My own created tools"
 ---
 
 <style>
-  /* Container styling */
   #tools-list {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    display: flex;
+    flex-wrap: wrap;
     gap: 20px;
     margin-top: 20px;
+    justify-content: space-between; /* Spread cards across the row */
+    width: 100%; /* Ensure it takes the full width of the container */
   }
 
-  /* Card styling */
   .tool-card {
     background-color: #f7f7f7;
     border-radius: 8px;
     padding: 15px;
     box-shadow: 0 2px 5px rgba(0,0,0,0.1);
     transition: transform 0.2s, box-shadow 0.2s;
+    flex: 1 1 calc(50% - 10px); /* Two cards per row with gap adjustment */
+    max-width: calc(50% - 10px); /* Ensure two cards per row */
+    min-width: 300px; /* Minimum width to prevent cards from being too narrow */
     display: flex;
     flex-direction: column;
-    justify-content: space-between;
+    box-sizing: border-box;
   }
+
+  /* Center the last card if it's the only one in the row (odd number) */
+  .tool-card:last-child:nth-child(odd) {
+    margin-left: auto;
+    margin-right: auto;
+  }
+
   .tool-card:hover {
     transform: translateY(-5px);
     box-shadow: 0 4px 10px rgba(0,0,0,0.15);
   }
 
   .tool-card h3 {
-    margin-top: 0;
+    margin: 0 0 10px 0;
     color: #333;
   }
 
-  /* Description container with slide-down/up effect */
   .description-container {
-    position: relative;
-    overflow: hidden;
-    max-height: 80px; /* Collapsed height */
-    transition: max-height 0.5s ease;
-  }
-  .description-container.expanded {
-    max-height: 1000px; /* Expanded height */
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
   }
 
   .tool-description {
     font-size: 0.9em;
     color: #666;
     margin: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: -webkit-box;
+    -webkit-line-clamp: 3; /* Limit to 3 lines */
+    -webkit-box-orient: vertical;
+    line-height: 1.5em; /* Adjust based on font size for consistent line height */
   }
 
-  /* Toggle button styling: just an icon, centered, black */
-  .toggle-description {
-    display: none;
-    margin: 10px auto 0;
-    background: none;
-    border: none;
-    cursor: pointer;
-    color: #000;
-    font-size: 1.2em;
-  }
-
-  /* Filter input styling */
   #filter-input {
     padding: 8px 12px;
     width: 100%;
@@ -654,10 +660,10 @@ description: "My own created tools"
     border-radius: 4px;
   }
 
-  /* Icon styling for tool icons */
   .tool-icon {
     margin-right: 8px;
   }
+
   .icon-docker { color: #0db7ed; }
   .icon-js { color: #f0db4f; }
   .icon-python { color: #306998; }
@@ -670,7 +676,7 @@ description: "My own created tools"
   .icon-default { color: #007bff; }
 </style>
 
-<h2><i class="fas fa-tools"></i>&nbsp; Tools</h2>
+<h2><i class="fas fa-tools"></i> Tools</h2>
 <p>
   Check out my GitHub repository for a complete list of my public tools:
   <a href="https://github.com/B4l3rI0n?tab=repositories" target="_blank">B4l3rI0n</a>
@@ -725,7 +731,6 @@ description: "My own created tools"
             </h3>
             <div class="description-container">
               <p class="tool-description">${repo.description ? repo.description : "No description provided."}</p>
-              <button class="toggle-description"><i class="fas fa-chevron-down"></i></button>
             </div>
           `;
 
@@ -733,26 +738,6 @@ description: "My own created tools"
           repoCard.className = 'tool-card';
           repoCard.innerHTML = repoHTML;
           toolsList.appendChild(repoCard);
-
-          const descriptionContainer = repoCard.querySelector('.description-container');
-          const description = repoCard.querySelector('.tool-description');
-          const toggle = repoCard.querySelector('.toggle-description');
-
-          if (description.innerText.length > 80) {
-            toggle.style.display = 'block';
-            toggle.addEventListener('click', () => {
-              descriptionContainer.classList.toggle('expanded');
-              // Change icon based on state
-              if (descriptionContainer.classList.contains('expanded')) {
-                toggle.innerHTML = '<i class="fas fa-chevron-up"></i>';
-              } else {
-                toggle.innerHTML = '<i class="fas fa-chevron-down"></i>';
-              }
-            });
-          } else {
-            descriptionContainer.classList.add('expanded');
-            toggle.style.display = 'none';
-          }
         });
       } else {
         toolsList.innerHTML = "<p>No tools found.</p>";
@@ -768,13 +753,29 @@ description: "My own created tools"
     const cards = document.querySelectorAll('.tool-card');
     cards.forEach(card => {
       const title = card.querySelector('h3').innerText.toLowerCase();
-      card.style.display = title.includes(filterValue) ? 'block' : 'none';
+      card.style.display = title.includes(filterValue) ? 'flex' : 'none';
+    });
+
+    // Re-center the last card if it's the only one in the row after filtering
+    const visibleCards = Array.from(cards).filter(card => card.style.display !== 'none');
+    visibleCards.forEach((card, index) => {
+      if (index === visibleCards.length - 1 && visibleCards.length % 2 !== 0) {
+        card.style.marginLeft = 'auto';
+        card.style.marginRight = 'auto';
+      } else {
+        card.style.marginLeft = '0';
+        card.style.marginRight = '0';
+      }
     });
   }
   
   document.getElementById('filter-input').addEventListener('input', filterTools);
   loadTools();
-</script>
+</script>  -->
+
+
+<!-- 
+
 
 -->
 
