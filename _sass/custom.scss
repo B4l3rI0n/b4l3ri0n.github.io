@@ -12,4 +12,32 @@
     font-size: 14px;
     color: #555;
   }
-  
+  /* Ensure the avatar container is positioned relatively */
+.avatar {
+  position: relative;
+  width: 150px;   /* Adjust size as needed */
+  height: 150px;
+  border-radius: 50%;
+  overflow: hidden;
+}
+
+/* Style the avatar image to fill the container */
+.avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+/* Use a pseudo-element to overlay the round frame */
+.avatar::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: url("https://app.hackthebox.com/images/competitive/tierFrames/tier-holo.svg") no-repeat center center;
+  background-size: cover;
+  pointer-events: none; /* Ensures the frame doesn't interfere with clicks */
+}
