@@ -158,6 +158,27 @@ description: "My own created tools"
     opacity: 1;
     visibility: visible;
   }
+
+  .error-message {
+    color: #d9534f;
+    font-size: 0.9em;
+    margin-top: 10px;
+  }
+
+  .retry-button {
+    background-color: #007bff;
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    padding: 8px 16px;
+    cursor: pointer;
+    margin-top: 10px;
+    font-size: 0.9em;
+  }
+
+  .retry-button:hover {
+    background-color: #0056b3;
+  }
 </style>
 
 <h2><i class="fas fa-tools"></i> Tools</h2>
@@ -172,7 +193,7 @@ description: "My own created tools"
 <input type="text" id="filter-input" placeholder="Filter tools by name..." aria-label="Filter tools by name" />
 
 <div id="tools-list">
-  <p><span class="spinner"></span>Loading tools...</p>
+  <p id="loading-message"><span class="spinner"></span>Loading tools...</p>
   <p id="no-results" style="display: none;">No tools found matching your search.</p>
 </div>
 
@@ -215,8 +236,23 @@ description: "My own created tools"
     });
   }
 
+  // Function to fetch with a timeout
+  async function fetchWithTimeout(url, options, timeout = 10000) {
+    const controller = new AbortController();
+    const id = setTimeout(() => controller.abort(), timeout);
+    try {
+      const response = await fetch(url, { ...options, signal: controller.signal });
+      clearTimeout(id);
+      return response;
+    } catch (error) {
+      clearTimeout(id);
+      throw error;
+    }
+  }
+
   async function loadTools() {
     const toolsList = document.getElementById('tools-list');
+    const loadingMessage = document.getElementById('loading-message');
     const cacheKey = 'github_repos_cache';
     const cacheExpiration = 60 * 60 * 1000; // 1 hour in milliseconds
 
@@ -232,7 +268,19 @@ description: "My own created tools"
     }
 
     try {
-      const response = await fetch('https://api.github.com/users/B4l3rI0n/repos');
+      const response = await fetchWithTimeout('https://api.github.com/users/B4l3rI0n/repos', {}, 10000);
+
+      // Check for rate limit or other errors
+      if (!response.ok) {
+        if (response.status === 403) {
+          throw new Error('GitHub API rate limit exceeded. Please try again later.');
+        } else if (response.status === 404) {
+          throw new Error('GitHub user or repositories not found. Please check the username.');
+        } else {
+          throw new Error(`Failed to fetch repositories: ${response.status} ${response.statusText}`);
+        }
+      }
+
       const repos = await response.json();
 
       // Cache the response
@@ -241,11 +289,33 @@ description: "My own created tools"
 
       renderTools(repos);
     } catch (error) {
-      toolsList.innerHTML = "<p>Failed to load tools.</p>";
+      loadingMessage.remove(); // Remove the loading spinner
+      let errorMessage = 'Failed to load tools. Please try again later.';
+      if (error.name === 'AbortError') {
+        errorMessage = 'Request timed out. Please check your internet connection and try again.';
+      } else if (error.message) {
+        errorMessage = error.message;
+      }
+
+      const errorDiv = document.createElement('div');
+      errorDiv.innerHTML = `
+        <p class="error-message">${errorMessage}</p>
+        <button class="retry-button" id="retry-button">Retry</button>
+      `;
+      toolsList.insertBefore(errorDiv, toolsList.firstChild);
+
+      // Add event listener for retry button
+      document.getElementById('retry-button').addEventListener('click', () => {
+        errorDiv.remove();
+        toolsList.insertBefore(loadingMessage, toolsList.firstChild);
+        loadTools();
+      });
+
       console.error("Error fetching repositories:", error);
     }
 
     function renderTools(repos) {
+      loadingMessage.remove(); // Remove the loading spinner
       toolsList.innerHTML = "";
       const noResults = document.createElement('p');
       noResults.id = 'no-results';
@@ -327,7 +397,9 @@ description: "My own created tools"
   loadTools();
 </script>
 
-<!-- ---
+
+<!-- 
+---
 icon: fas fa-tools
 order: 3
 layout: page
@@ -512,7 +584,9 @@ description: "My own created tools"
   
   document.getElementById('filter-input').addEventListener('input', filterTools);
   loadTools();
-</script> -->
+</script> 
+
+-->
 
 
 
@@ -520,6 +594,7 @@ description: "My own created tools"
 
 
 <!-- 
+
 ---
 icon: fas fa-tools
 order: 3
@@ -716,5 +791,6 @@ description: "My own created tools"
   document.getElementById('filter-input').addEventListener('input', filterTools);
   loadTools();
 </script>
- -->
+
+-->
 
