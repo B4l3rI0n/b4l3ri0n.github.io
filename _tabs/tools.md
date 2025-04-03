@@ -236,20 +236,6 @@ description: "My own created tools"
     });
   }
 
-  // Function to fetch with a timeout
-  async function fetchWithTimeout(url, options, timeout = 10000) {
-    const controller = new AbortController();
-    const id = setTimeout(() => controller.abort(), timeout);
-    try {
-      const response = await fetch(url, { ...options, signal: controller.signal });
-      clearTimeout(id);
-      return response;
-    } catch (error) {
-      clearTimeout(id);
-      throw error;
-    }
-  }
-
   async function loadTools() {
     const toolsList = document.getElementById('tools-list');
     const loadingMessage = document.getElementById('loading-message');
@@ -268,7 +254,12 @@ description: "My own created tools"
     }
 
     try {
-      const response = await fetchWithTimeout('https://api.github.com/users/B4l3rI0n/repos', {}, 10000);
+      // Simplified fetch request without AbortController
+      const response = await fetch('https://api.github.com/users/B4l3rI0n/repos', {
+        headers: {
+          'Accept': 'application/vnd.github.v3+json'
+        }
+      });
 
       // Check for rate limit or other errors
       if (!response.ok) {
@@ -291,9 +282,7 @@ description: "My own created tools"
     } catch (error) {
       loadingMessage.remove(); // Remove the loading spinner
       let errorMessage = 'Failed to load tools. Please try again later.';
-      if (error.name === 'AbortError') {
-        errorMessage = 'Request timed out. Please check your internet connection and try again.';
-      } else if (error.message) {
+      if (error.message) {
         errorMessage = error.message;
       }
 
