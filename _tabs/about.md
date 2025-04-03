@@ -19,8 +19,14 @@ Driven by a relentless curiosity and a hacker mindset, I constantly push my limi
 
 **Hack The Box Profile:**
 
-<p>Check out my Hack The Box achievements: <a href="https://app.hackthebox.com/profile/1862550" target="_blank"><strong>B4l3rI0n</strong></a></p>
+<p>Check out my Hack The Box achievements: 
+  <a href="https://app.hackthebox.com/profile/1862550" target="_blank" rel="noopener noreferrer">
+    <strong>B4l3rI0n</strong>
+  </a>
+</p>
 
-<a href="https://app.hackthebox.com/profile/1862550" target="_blank">
-  <img src="https://www.hackthebox.com/badge/image/1862550" alt="HTB Badge" style="width: 200px; border: 2px solid #000;">
-</a>
+<div style="text-align: center;">
+  <div onclick="window.open('https://app.hackthebox.com/profile/1862550', '_blank')">
+    <img src="https://www.hackthebox.com/badge/image/1862550" alt="HTB Badge" style="width: 200px; border: 2px solid #000; cursor: pointer;">
+  </div>
+</div>
