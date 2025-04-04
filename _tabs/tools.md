@@ -15,7 +15,7 @@ description: "My own created tools"
     justify-content: space-between;
     width: 100%;
   }
-  
+
   .tool-card {
     background-color: #f7f7f7;
     border-radius: 8px;
@@ -164,21 +164,6 @@ description: "My own created tools"
     font-size: 0.9em;
     margin-top: 10px;
   }
-
-  .retry-button {
-    background-color: #007bff;
-    color: #fff;
-    border: none;
-    border-radius: 4px;
-    padding: 8px 16px;
-    cursor: pointer;
-    margin-top: 10px;
-    font-size: 0.9em;
-  }
-
-  .retry-button:hover {
-    background-color: #0056b3;
-  }
 </style>
 
 <h2><i class="fas fa-tools"></i> Tools</h2>
@@ -187,7 +172,7 @@ description: "My own created tools"
   <a href="https://github.com/B4l3rI0n?tab=repositories" target="_blank">B4l3rI0n</a>
 </p>
 <p>
-  Below is a dynamically generated list of my tools. You can use the filter box to quickly search for a specific tool.
+  Below is a list of my tools. You can use the filter box to quickly search for a specific tool.
 </p>
 
 <input type="text" id="filter-input" placeholder="Filter tools by name..." aria-label="Filter tools by name" />
@@ -239,68 +224,25 @@ description: "My own created tools"
   async function loadTools() {
     const toolsList = document.getElementById('tools-list');
     const loadingMessage = document.getElementById('loading-message');
-    const cacheKey = 'github_repos_cache';
-    const cacheExpiration = 60 * 60 * 1000; // 1 hour in milliseconds
-
-    // Check if cached data exists and is still valid
-    const cachedData = localStorage.getItem(cacheKey);
-    const cachedTime = localStorage.getItem(`${cacheKey}_time`);
-    const now = new Date().getTime();
-
-    if (cachedData && cachedTime && (now - cachedTime) < cacheExpiration) {
-      const repos = JSON.parse(cachedData);
-      renderTools(repos);
-      return;
-    }
 
     try {
-      // Simplified fetch request without AbortController
-      const response = await fetch('https://api.github.com/users/B4l3rI0n/repos', {
-        headers: {
-          'Accept': 'application/vnd.github.v3+json'
-        }
-      });
+      // Fetch the static JSON file from the same domain
+      const response = await fetch('/data/repos.json'); // Adjust the path based on where you placed repos.json
 
-      // Check for rate limit or other errors
       if (!response.ok) {
-        if (response.status === 403) {
-          throw new Error('GitHub API rate limit exceeded. Please try again later.');
-        } else if (response.status === 404) {
-          throw new Error('GitHub user or repositories not found. Please check the username.');
-        } else {
-          throw new Error(`Failed to fetch repositories: ${response.status} ${response.statusText}`);
-        }
+        throw new Error(`Failed to load tools: ${response.status} ${response.statusText}`);
       }
 
       const repos = await response.json();
-
-      // Cache the response
-      localStorage.setItem(cacheKey, JSON.stringify(repos));
-      localStorage.setItem(`${cacheKey}_time`, now.toString());
-
       renderTools(repos);
     } catch (error) {
       loadingMessage.remove(); // Remove the loading spinner
-      let errorMessage = 'Failed to load tools. Please try again later.';
-      if (error.message) {
-        errorMessage = error.message;
-      }
-
       const errorDiv = document.createElement('div');
       errorDiv.innerHTML = `
-        <p class="error-message">${errorMessage}</p>
-        <button class="retry-button" id="retry-button">Retry</button>
+        <p class="error-message">Failed to load tools: ${error.message}</p>
       `;
       toolsList.insertBefore(errorDiv, toolsList.firstChild);
-
-      // Add event listener for retry button
-      document.getElementById('retry-button').addEventListener('click', () => {
-        errorDiv.remove();
-        toolsList.insertBefore(loadingMessage, toolsList.firstChild);
-        loadTools();
-      });
-
-      console.error("Error fetching repositories:", error);
+      console.error("Error loading tools:", error);
     }
 
     function renderTools(repos) {

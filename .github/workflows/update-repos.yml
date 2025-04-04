@@ -1,0 +1,25 @@
+name: Update Repos JSON
+
+on:
+  schedule:
+    - cron: '0 0 * * *' # Runs daily at midnight UTC
+  workflow_dispatch: # Allows manual triggering
+
+jobs:
+  update-repos:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+        with:
+          node-version: '16'
+      - run: |
+          npm install node-fetch
+          node -e "const fs = require('fs'); const fetch = require('node-fetch').default; (async () => { const res = await fetch('https://api.github.com/users/B4l3rI0n/repos'); const repos = await res.json(); fs.writeFileSync('data/repos.json', JSON.stringify(repos, null, 2)); })();"
+      - name: Commit changes
+        run: |
+          git config user.name "GitHub Action"
+          git config user.email "action@github.com"
+          git add data/repos.json
+          git commit -m "Update repos.json"
+          git push
