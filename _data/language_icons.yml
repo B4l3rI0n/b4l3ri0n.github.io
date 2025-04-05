@@ -1,0 +1,71 @@
+JavaScript:
+  icon: "fab fa-js-square"
+  style: "icon-js"
+
+JS:
+  icon: "fab fa-js-square"
+  style: "icon-js"
+
+TypeScript:
+  icon: "fab fa-js-square"
+  style: "icon-js"
+
+Python:
+  icon: "fab fa-python"
+  style: "icon-python"
+
+Flask:
+  icon: "fas fa-flask"
+  style: "icon-python"
+
+Ruby:
+  icon: "fas fa-gem"
+  style: "icon-ruby"
+
+Docker:
+  icon: "fab fa-docker"
+  style: "icon-docker"
+
+Java:
+  icon: "fab fa-java"
+  style: "icon-java"
+
+HTML:
+  icon: "fab fa-html5"
+  style: "icon-html"
+
+CSS:
+  icon: "fab fa-css3-alt"
+  style: "icon-css"
+
+PHP:
+  icon: "fab fa-php"
+  style: "icon-php"
+
+Shell:
+  icon: "fas fa-terminal"
+  style: "icon-default"
+
+Bash:
+  icon: "fas fa-terminal"
+  style: "icon-default"
+
+PowerShell:
+  icon: "fas fa-terminal"
+  style: "icon-powershell"
+
+.NET:
+  icon: "fas fa-code"
+  style: "icon-default"
+
+C#:
+  icon: "fas fa-code"
+  style: "icon-default"
+
+Go:
+  icon: "fas fa-code-branch"
+  style: "icon-default"
+
+default:
+  icon: "fas fa-code"
+  style: "icon-default"
