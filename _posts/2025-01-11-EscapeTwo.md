@@ -1,6 +1,6 @@
 ---
 title: EscapeTwo
-date: 2025-03-24 01:39:09 +/-0005
+date: 2025-01-11 01:39:09 +/-0005
 categories: [WalkThrough, HTB]
 tags: [Active Directory, HTB, Easy, Windows]
 ---
