@@ -7,7 +7,6 @@ description: "My own created tools"
 ---
 
 <style>
-  /* GRID LAYOUT */
   #tools-list {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
@@ -15,7 +14,6 @@ description: "My own created tools"
     margin-top: 20px;
   }
 
-  /* CARD */
   .tool-card {
     background-color: #f7f7f7;
     border: 1px solid #e0e0e0;
@@ -37,7 +35,6 @@ description: "My own created tools"
     outline-offset: 2px;
   }
 
-  /* TITLE */
   .tool-card h3 {
     margin: 0 0 10px;
     font-size: 1.2em;
@@ -54,7 +51,6 @@ description: "My own created tools"
     text-decoration: underline;
   }
 
-  /* DESCRIPTION */
   .description-container {
     flex-grow: 1;
     display: flex;
@@ -67,12 +63,11 @@ description: "My own created tools"
     overflow: hidden;
     text-overflow: ellipsis;
     display: -webkit-box;
-    -webkit-line-clamp: 3;       /* limit to 3 lines */
+    -webkit-line-clamp: 3;
     -webkit-box-orient: vertical;
     line-height: 1.6em;
   }
 
-  /* LANGUAGE BADGE */
   .language-badge {
     display: inline-block;
     font-size: 0.75em;
@@ -84,7 +79,6 @@ description: "My own created tools"
     vertical-align: middle;
   }
 
-  /* FILTER INPUT */
   #filter-input {
     width: 100%;
     padding: 8px 12px;
@@ -97,7 +91,12 @@ description: "My own created tools"
     border-color: #007bff;
   }
 
-  /* ICON COLORS */
+  .center-card {
+    grid-column: 1 / -1;
+    justify-self: center;
+    max-width: 400px;
+  }
+
   .tool-icon { margin-right: 8px; }
   .icon-docker   { color: #0db7ed; }
   .icon-js       { color: #f0db4f; }
@@ -110,10 +109,8 @@ description: "My own created tools"
   .icon-powershell { color: #012456; }
   .icon-default  { color: #007bff; }
 
-  /* SPINNER (hidden now) */
   .spinner { display: none; }
 
-  /* BACK TO TOP */
   #back-to-top {
     position: fixed; bottom: 20px; right: 20px;
     width: 40px; height: 40px;
@@ -140,12 +137,22 @@ description: "My own created tools"
 <input type="text" id="filter-input" placeholder="Filter tools by name…" aria-label="Filter tools by name" />
 
 <div id="tools-list">
-  {% assign repos = site.data.repos %}
-  {% if repos and repos.size > 0 %}
+  {% assign repos  = site.data.repos %}
+  {% assign total  = repos | size %}
+  {% assign last_index = total | minus: 1 %}
+  {% assign odd = total | modulo: 2 %}
+
+  {% if total > 0 %}
     {% for repo in repos %}
+      {% assign extra_class = "" %}
+      {% if forloop.index0 == last_index and odd == 1 %}
+        {% assign extra_class = "center-card" %}
+      {% endif %}
+
       {% assign lang = repo.language | default: "default" %}
       {% assign iconData = site.data.language_icons[lang] | default: site.data.language_icons.default %}
-      <div class="tool-card" role="article" aria-labelledby="tool-{{ repo.name }}">
+
+      <div class="tool-card {{ extra_class }}" role="article" aria-labelledby="tool-{{ repo.name }}">
         <h3 id="tool-{{ repo.name }}">
           <i class="{{ iconData.icon }} tool-icon {{ iconData.style }}"></i>
           <a href="{{ repo.html_url }}" target="_blank">{{ repo.name }}</a>
@@ -170,7 +177,6 @@ description: "My own created tools"
 </button>
 
 <script>
-  // FILTER
   function filterTools() {
     const q = document.getElementById('filter-input').value.toLowerCase();
     const cards = document.querySelectorAll('.tool-card');
@@ -184,7 +190,6 @@ description: "My own created tools"
         c.style.display = 'none';
       }
     });
-    // no-results message
     if (!visible) {
       if (!document.getElementById('no-results')) {
         const msg = document.createElement('p');
@@ -196,7 +201,6 @@ description: "My own created tools"
       const nr = document.getElementById('no-results');
       if (nr) nr.remove();
     }
-    // center last odd card
     const visibleCards = Array.from(cards).filter(c=>c.style.display!=='none');
     visibleCards.forEach((c,i) => {
       c.style.marginInline = (i===visibleCards.length-1 && visibleCards.length%2) ? 'auto' : '0';
@@ -204,7 +208,6 @@ description: "My own created tools"
   }
   document.getElementById('filter-input').addEventListener('input', filterTools);
 
-  // BACK TO TOP
   const btn = document.getElementById('back-to-top');
   window.addEventListener('scroll', () => {
     window.scrollY > 300 ? btn.classList.add('visible') : btn.classList.remove('visible');
