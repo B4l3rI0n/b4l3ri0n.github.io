@@ -1,25 +1,36 @@
-name: Update Repos JSON
+name: Update Tools List
 
 on:
   schedule:
-    - cron: '0 0 * * *' # Runs daily at midnight UTC
-  workflow_dispatch: # Allows manual triggering
+    - cron: "0 * * * *"
+  workflow_dispatch:
 
 jobs:
-  update-repos:
+  update-tools:
     runs-on: ubuntu-latest
+
     steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-node@v3
-        with:
-          node-version: '16'
-      - run: |
-          npm install node-fetch
-          node -e "const fs = require('fs'); const fetch = require('node-fetch').default; (async () => { const res = await fetch('https://api.github.com/users/B4l3rI0n/repos'); const repos = await res.json(); fs.writeFileSync('data/repos.json', JSON.stringify(repos, null, 2)); })();"
-      - name: Commit changes
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Fetch GitHub repos and write to _data/repos.json
         run: |
-          git config user.name "GitHub Action"
-          git config user.email "action@github.com"
-          git add data/repos.json
-          git commit -m "Update repos.json"
-          git push
+          # Fetch public repos, select only name, html_url, description, language
+          curl -s "https://api.github.com/users/B4l3rI0n/repos?per_page=100" \
+            | jq 'map({
+                name: .name,
+                html_url: .html_url,
+                description: (.description // ""),
+                language: (.language // "")
+              })' \
+            > _data/repos.json
+
+      - name: Commit and push if changed
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add _data/repos.json
+          git diff --quiet && echo "No changes to repos.json" || (
+            git commit -m "ci: update repos.json"
+            git push
+          )
