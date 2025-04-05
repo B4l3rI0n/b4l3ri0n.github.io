@@ -172,7 +172,7 @@ description: "My own created tools"
   <a href="https://github.com/B4l3rI0n?tab=repositories" target="_blank">B4l3rI0n</a>
 </p>
 <p>
-  Below is a list of my tools. You can use the filter box to quickly search for a specific tool.
+  Below is a dynamically generated list of my tools. You can use the filter box to quickly search for a specific tool.
 </p>
 
 <input type="text" id="filter-input" placeholder="Filter tools by name..." aria-label="Filter tools by name" />
