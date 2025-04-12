@@ -10,7 +10,7 @@ _site
 
 # draft
 _drafts
-
+_posts/HTB/_drafts
 # RubyGems
 *.gem
 
