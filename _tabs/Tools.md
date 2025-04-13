@@ -191,7 +191,7 @@ description: "My own created tools"
     box-shadow: inset 0 1px 3px var(--shadow-light);
     vertical-align: middle;
     appearance: none;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23777' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='var(--text-secondary)' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
     background-repeat: no-repeat;
     background-position: right 10px center;
   }
@@ -340,172 +340,245 @@ description: "My own created tools"
   let currentBatch = 0;
 
   function filterTools() {
-    const q = document.getElementById('filter-input').value.toLowerCase();
-    allCards = Array.from(document.querySelectorAll('.tool-card'));
-    visibleCards = [];
-    let visible = 0;
+    try {
+      const filterInput = document.getElementById('filter-input');
+      if (!filterInput) {
+        console.error('Filter input element not found');
+        return;
+      }
 
-    allCards.forEach(c => {
-      const title = c.querySelector('h3').innerText.toLowerCase();
-      if (title.includes(q)) {
-        visibleCards.push(c);
-        visible++;
+      const q = filterInput.value.toLowerCase();
+      allCards = Array.from(document.querySelectorAll('.tool-card'));
+      visibleCards = [];
+      let visible = 0;
+
+      allCards.forEach(c => {
+        const title = c.querySelector('h3').innerText.toLowerCase();
+        if (title.includes(q)) {
+          visibleCards.push(c);
+          visible++;
+        } else {
+          c.classList.add('hidden');
+        }
+        c.classList.remove('center-card');
+      });
+
+      // Update ARIA live region
+      const status = document.getElementById('filter-status');
+      if (status) {
+        status.textContent = `${visible} tool${visible === 1 ? '' : 's'} found.`;
+      }
+
+      if (!visible) {
+        if (!document.getElementById('no-results')) {
+          const msg = document.createElement('p');
+          msg.id = 'no-results';
+          msg.textContent = 'No tools found matching your search.';
+          document.getElementById('tools-list').append(msg);
+        }
       } else {
-        c.classList.add('hidden');
+        const nr = document.getElementById('no-results');
+        if (nr) nr.remove();
       }
-      c.classList.remove('center-card');
-    });
 
-    // Update ARIA live region
-    const status = document.getElementById('filter-status');
-    status.textContent = `${visible} tool${visible === 1 ? '' : 's'} found.`;
+      // Reset infinite scroll
+      currentBatch = 0;
+      loadMoreTools();
 
-    if (!visible) {
-      if (!document.getElementById('no-results')) {
-        const msg = document.createElement('p');
-        msg.id = 'no-results';
-        msg.textContent = 'No tools found matching your search.';
-        document.getElementById('tools-list').append(msg);
+      // Update clear button visibility
+      const clearBtn = document.getElementById('clear-filter');
+      if (clearBtn) {
+        clearBtn.classList.toggle('visible', filterInput.value.length > 0);
       }
-    } else {
-      const nr = document.getElementById('no-results');
-      if (nr) nr.remove();
+    } catch (error) {
+      console.error('Error in filterTools:', error);
     }
-
-    // Reset infinite scroll
-    currentBatch = 0;
-    loadMoreTools();
-
-    // Update clear button visibility
-    const clearBtn = document.getElementById('clear-filter');
-    clearBtn.classList.toggle('visible', filterInput.value.length > 0);
   }
 
   function sortTools() {
-    const sortValue = document.getElementById('sort-tools').value;
-    const cards = Array.from(document.querySelectorAll('.tool-card'));
-    const container = document.getElementById('tools-list');
-
-    cards.sort((a, b) => {
-      const aName = a.querySelector('h3').innerText.toLowerCase();
-      const bName = b.querySelector('h3').innerText.toLowerCase();
-      const aLang = a.querySelector('.language-badge')?.textContent.toLowerCase() || '';
-      const bLang = b.querySelector('.language-badge')?.textContent.toLowerCase() || '';
-
-      if (sortValue === 'name-asc') return aName.localeCompare(bName);
-      if (sortValue === 'name-desc') return bName.localeCompare(aName);
-      if (sortValue === 'language') {
-        return aLang === bLang ? aName.localeCompare(bName) : aLang.localeCompare(bLang);
+    try {
+      const sortSelect = document.getElementById('sort-tools');
+      if (!sortSelect) {
+        console.error('Sort select element not found');
+        return;
       }
-      return 0;
-    });
 
-    // Re-append sorted cards
-    container.innerHTML = '';
-    cards.forEach(card => container.appendChild(card));
+      const sortValue = sortSelect.value;
+      const container = document.getElementById('tools-list');
+      if (!container) {
+        console.error('Tools list container not found');
+        return;
+      }
 
-    // Re-apply filter and infinite scroll
-    filterTools();
+      const cards = Array.from(document.querySelectorAll('.tool-card'));
+      if (!cards.length) {
+        console.warn('No tool cards found for sorting');
+        return;
+      }
+
+      cards.sort((a, b) => {
+        const aName = a.querySelector('h3').innerText.toLowerCase();
+        const bName = b.querySelector('h3').innerText.toLowerCase();
+        const aLang = a.querySelector('.language-badge')?.textContent.toLowerCase() || '';
+        const bLang = b.querySelector('.language-badge')?.textContent.toLowerCase() || '';
+
+        if (sortValue === 'name-asc') return aName.localeCompare(bName);
+        if (sortValue === 'name-desc') return bName.localeCompare(aName);
+        if (sortValue === 'language') {
+          return aLang === bLang ? aName.localeCompare(bName) : aLang.localeCompare(bLang);
+        }
+        return 0;
+      });
+
+      // Re-append sorted cards
+      container.innerHTML = '';
+      cards.forEach(card => container.appendChild(card));
+
+      // Re-apply filter and infinite scroll
+      filterTools();
+    } catch (error) {
+      console.error('Error in sortTools:', error);
+    }
   }
 
   function loadMoreTools() {
-    const start = currentBatch * ITEMS_PER_BATCH;
-    const end = Math.min(start + ITEMS_PER_BATCH, visibleCards.length);
+    try {
+      const start = currentBatch * ITEMS_PER_BATCH;
+      const end = Math.min(start + ITEMS_PER_BATCH, visibleCards.length);
 
-    // Hide all cards first
-    allCards.forEach(c => c.classList.add('hidden'));
+      // Hide all cards first
+      allCards.forEach(c => c.classList.add('hidden'));
 
-    // Show cards up to the current batch
-    for (let i = 0; i < end; i++) {
-      visibleCards[i].classList.remove('hidden');
+      // Show cards up to the current batch
+      for (let i = 0; i < end; i++) {
+        visibleCards[i].classList.remove('hidden');
+      }
+
+      // Apply center-card class to the last visible card if odd
+      const shownCards = visibleCards.slice(0, end);
+      if (shownCards.length % 2 === 1) {
+        shownCards[shownCards.length - 1].classList.add('center-card');
+      }
+
+      // Hide "Load More" if all cards are shown
+      const loadMore = document.getElementById('load-more');
+      if (loadMore) {
+        if (end >= visibleCards.length) {
+          loadMore.classList.add('hidden');
+        } else {
+          loadMore.classList.remove('hidden');
+        }
+      }
+
+      // Announce loaded items for accessibility
+      const status = document.getElementById('filter-status');
+      if (status) {
+        status.textContent = `Showing ${end} of ${visibleCards.length} tool${visibleCards.length === 1 ? '' : 's'}.`;
+      }
+    } catch (error) {
+      console.error('Error in loadMoreTools:', error);
     }
-
-    // Apply center-card class to the last visible card if odd
-    const shownCards = visibleCards.slice(0, end);
-    if (shownCards.length % 2 === 1) {
-      shownCards[shownCards.length - 1].classList.add('center-card');
-    }
-
-    // Hide "Load More" if all cards are shown
-    const loadMore = document.getElementById('load-more');
-    if (end >= visibleCards.length) {
-      loadMore.classList.add('hidden');
-    } else {
-      loadMore.classList.remove('hidden');
-    }
-
-    // Announce loaded items for accessibility
-    const status = document.getElementById('filter-status');
-    status.textContent = `Showing ${end} of ${visibleCards.length} tool${visibleCards.length === 1 ? '' : 's'}.`;
   }
 
   function setupInfiniteScroll() {
-    const loadMore = document.getElementById('load-more');
-    if (!loadMore) {
-      console.error('Load More element not found');
-      return;
-    }
+    try {
+      const loadMore = document.getElementById('load-more');
+      if (!loadMore) {
+        console.error('Load More element not found');
+        return;
+      }
 
-    const observer = new IntersectionObserver((entries, obs) => {
-      entries.forEach(entry => {
-        if (entry.isIntersecting && currentBatch * ITEMS_PER_BATCH < visibleCards.length) {
+      const observer = new IntersectionObserver((entries, obs) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting && currentBatch * ITEMS_PER_BATCH < visibleCards.length) {
+            currentBatch++;
+            loadMoreTools();
+          }
+        });
+      }, { rootMargin: '200px' });
+
+      observer.observe(loadMore);
+
+      // Fallback: If the observer doesn't trigger within 2 seconds, manually check
+      setTimeout(() => {
+        const rect = loadMore.getBoundingClientRect();
+        const isInViewport = rect.top >= 0 && rect.bottom <= window.innerHeight;
+        if (isInViewport && currentBatch * ITEMS_PER_BATCH < visibleCards.length) {
           currentBatch++;
           loadMoreTools();
         }
-      });
-    }, { rootMargin: '200px' });
-
-    observer.observe(loadMore);
-
-    // Fallback: If the observer doesn't trigger within 2 seconds, manually check
-    setTimeout(() => {
-      const rect = loadMore.getBoundingClientRect();
-      const isInViewport = rect.top >= 0 && rect.bottom <= window.innerHeight;
-      if (isInViewport && currentBatch * ITEMS_PER_BATCH < visibleCards.length) {
-        currentBatch++;
-        loadMoreTools();
-      }
-    }, 2000);
+      }, 2000);
+    } catch (error) {
+      console.error('Error in setupInfiniteScroll:', error);
+    }
   }
 
-  // Event listeners
-  const filterInput = document.getElementById('filter-input');
-  const clearBtn = document.getElementById('clear-filter');
-
-  filterInput.addEventListener('input', filterTools);
-
-  clearBtn.addEventListener('click', () => {
-    filterInput.value = '';
-    filterTools();
-    clearBtn.classList.remove('visible');
-    filterInput.focus();
-  });
-
-  document.getElementById('sort-tools').addEventListener('change', sortTools);
-
-  const btn = document.getElementById('back-to-top');
-  window.addEventListener('scroll', () => {
-    window.scrollY > 300 ? btn.classList.add('visible') : btn.classList.remove('visible');
-  });
-  btn.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
-
-  // Initialize infinite scroll
+  // Initialize everything after DOM is fully loaded
   document.addEventListener('DOMContentLoaded', () => {
-    allCards = Array.from(document.querySelectorAll('.tool-card'));
-    if (allCards.length === 0) {
-      console.warn('No tool cards found in the DOM');
-    }
-    filterTools(); // Initial filter to set up infinite scroll
-    setupInfiniteScroll();
-  });
-
-  // Handle keyboard navigation for cards
-  document.querySelectorAll('.tool-card').forEach(card => {
-    card.addEventListener('keydown', e => {
-      if (e.key === 'Enter' || e.key === ' ') {
-        e.preventDefault();
-        card.querySelector('h3 a')?.click();
+    try {
+      // Initialize cards
+      allCards = Array.from(document.querySelectorAll('.tool-card'));
+      if (allCards.length === 0) {
+        console.warn('No tool cards found in the DOM');
       }
-    });
+
+      // Set up filter input event listener
+      const filterInput = document.getElementById('filter-input');
+      if (filterInput) {
+        filterInput.addEventListener('input', filterTools);
+      } else {
+        console.error('Filter input element not found during initialization');
+      }
+
+      // Set up clear filter button event listener
+      const clearBtn = document.getElementById('clear-filter');
+      if (clearBtn) {
+        clearBtn.addEventListener('click', () => {
+          if (filterInput) {
+            filterInput.value = '';
+            filterTools();
+            clearBtn.classList.remove('visible');
+            filterInput.focus();
+          }
+        });
+      } else {
+        console.error('Clear filter button not found');
+      }
+
+      // Set up sort select event listener
+      const sortSelect = document.getElementById('sort-tools');
+      if (sortSelect) {
+        sortSelect.addEventListener('change', sortTools);
+      } else {
+        console.error('Sort select element not found during initialization');
+      }
+
+      // Set up back to top button
+      const backToTopBtn = document.getElementById('back-to-top');
+      if (backToTopBtn) {
+        window.addEventListener('scroll', () => {
+          window.scrollY > 300 ? backToTopBtn.classList.add('visible') : backToTopBtn.classList.remove('visible');
+        });
+        backToTopBtn.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
+      } else {
+        console.error('Back to top button not found');
+      }
+
+      // Set up keyboard navigation for cards
+      document.querySelectorAll('.tool-card').forEach(card => {
+        card.addEventListener('keydown', e => {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            card.querySelector('h3 a')?.click();
+          }
+        });
+      });
+
+      // Initial filter and infinite scroll setup
+      filterTools();
+      setupInfiniteScroll();
+    } catch (error) {
+      console.error('Error during initialization:', error);
+    }
   });
 </script>
