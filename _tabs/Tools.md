@@ -54,6 +54,7 @@ description: "My own created tools"
     display: flex;
     flex-direction: column;
     justify-content: space-between;
+    cursor: pointer; /* Indicate the card is clickable */
   }
   .tool-card.hidden {
     display: none;
@@ -265,6 +266,11 @@ description: "My own created tools"
   Below is a dynamically generated list of my tools. You can use the filter box to quickly search for a specific tool or sort them by different criteria.
 </p>
 
+<!-- Debug: Log the repos data to verify it's available -->
+<p id="debug-repos" style="display: none;">
+  {{ site.data.repos | inspect }}
+</p>
+
 <div class="controls-container">
   <div class="filter-container">
     <input type="text" id="filter-input" placeholder="Search tools…" aria-label="Filter tools by name" />
@@ -327,12 +333,29 @@ description: "My own created tools"
 </button>
 
 <script>
-  // Polyfill for IntersectionObserver (for older browsers)
-  if (!('IntersectionObserver' in window)) {
-    const script = document.createElement('script');
-    script.src = 'https://polyfill.io/v3/polyfill.min.js?features=IntersectionObserver';
-    document.head.appendChild(script);
-  }
+  // Inline IntersectionObserver polyfill to avoid CSP issues
+  (function() {
+    if (!('IntersectionObserver' in window)) {
+      window.IntersectionObserver = class IntersectionObserver {
+        constructor(callback, options) {
+          this.callback = callback;
+          this.options = options;
+          this.elements = new Set();
+        }
+        observe(element) {
+          this.elements.add(element);
+          // Fallback: Trigger callback immediately for simplicity
+          this.callback([{ isIntersecting: true, target: element }]);
+        }
+        unobserve(element) {
+          this.elements.delete(element);
+        }
+        disconnect() {
+          this.elements.clear();
+        }
+      };
+    }
+  })();
 
   const ITEMS_PER_BATCH = 6; // Number of tools to load per batch
   let allCards = [];
@@ -362,6 +385,8 @@ description: "My own created tools"
         }
         c.classList.remove('center-card');
       });
+
+      console.log(`Filtered ${visible} tools with query "${q}"`);
 
       // Update ARIA live region
       const status = document.getElementById('filter-status');
@@ -430,6 +455,8 @@ description: "My own created tools"
         return 0;
       });
 
+      console.log(`Sorted tools by ${sortValue}`);
+
       // Re-append sorted cards
       container.innerHTML = '';
       cards.forEach(card => container.appendChild(card));
@@ -470,6 +497,8 @@ description: "My own created tools"
         }
       }
 
+      console.log(`Loaded batch ${currentBatch}: Showing ${end} of ${visibleCards.length} tools`);
+
       // Announce loaded items for accessibility
       const status = document.getElementById('filter-status');
       if (status) {
@@ -508,24 +537,36 @@ description: "My own created tools"
           loadMoreTools();
         }
       }, 2000);
+
+      console.log('Infinite scroll observer set up');
     } catch (error) {
       console.error('Error in setupInfiniteScroll:', error);
     }
   }
 
-  // Initialize everything after DOM is fully loaded
-  document.addEventListener('DOMContentLoaded', () => {
+  function initialize() {
     try {
+      // Debug: Log the repos data
+      const debugRepos = document.getElementById('debug-repos');
+      if (debugRepos) {
+        console.log('site.data.repos:', debugRepos.textContent);
+      } else {
+        console.warn('Debug repos element not found');
+      }
+
       // Initialize cards
       allCards = Array.from(document.querySelectorAll('.tool-card'));
       if (allCards.length === 0) {
         console.warn('No tool cards found in the DOM');
+      } else {
+        console.log(`Found ${allCards.length} tool cards`);
       }
 
       // Set up filter input event listener
       const filterInput = document.getElementById('filter-input');
       if (filterInput) {
         filterInput.addEventListener('input', filterTools);
+        console.log('Filter input event listener attached');
       } else {
         console.error('Filter input element not found during initialization');
       }
@@ -541,6 +582,7 @@ description: "My own created tools"
             filterInput.focus();
           }
         });
+        console.log('Clear filter button event listener attached');
       } else {
         console.error('Clear filter button not found');
       }
@@ -549,9 +591,33 @@ description: "My own created tools"
       const sortSelect = document.getElementById('sort-tools');
       if (sortSelect) {
         sortSelect.addEventListener('change', sortTools);
+        console.log('Sort select event listener attached');
       } else {
         console.error('Sort select element not found during initialization');
       }
+
+      // Set up click and keyboard navigation for cards
+      allCards.forEach(card => {
+        // Click event
+        card.addEventListener('click', () => {
+          const link = card.querySelector('h3 a');
+          if (link) {
+            window.open(link.href, '_blank');
+          }
+        });
+
+        // Keyboard event (Enter or Space)
+        card.addEventListener('keydown', e => {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            const link = card.querySelector('h3 a');
+            if (link) {
+              window.open(link.href, '_blank');
+            }
+          }
+        });
+      });
+      console.log('Card click and keyboard event listeners attached');
 
       // Set up back to top button
       const backToTopBtn = document.getElementById('back-to-top');
@@ -560,25 +626,30 @@ description: "My own created tools"
           window.scrollY > 300 ? backToTopBtn.classList.add('visible') : backToTopBtn.classList.remove('visible');
         });
         backToTopBtn.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
+        console.log('Back to top button event listeners attached');
       } else {
         console.error('Back to top button not found');
       }
-
-      // Set up keyboard navigation for cards
-      document.querySelectorAll('.tool-card').forEach(card => {
-        card.addEventListener('keydown', e => {
-          if (e.key === 'Enter' || e.key === ' ') {
-            e.preventDefault();
-            card.querySelector('h3 a')?.click();
-          }
-        });
-      });
 
       // Initial filter and infinite scroll setup
       filterTools();
       setupInfiniteScroll();
     } catch (error) {
       console.error('Error during initialization:', error);
+    }
+  }
+
+  // Use window.onload to ensure all resources are loaded
+  window.onload = () => {
+    console.log('Window loaded, initializing...');
+    initialize();
+  };
+
+  // Fallback: If window.onload doesn't fire, try DOMContentLoaded
+  document.addEventListener('DOMContentLoaded', () => {
+    console.log('DOM content loaded, checking if initialization is needed...');
+    if (!allCards.length) {
+      initialize();
     }
   });
 </script>
