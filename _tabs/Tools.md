@@ -23,16 +23,16 @@ description: "My own created tools"
   }
 
   [theme="dark"] {
-    --card-bg: #333; /* Lightened for better contrast with page background */
-    --card-border: #4a4a4a; /* Made more visible */
+    --card-bg: #333;
+    --card-border: #4a4a4a;
     --text-primary: #e0e0e0;
-    --text-secondary: #b0b0b0; /* Lightened for better readability */
-    --link-color: #4a90e2; /* Darkened slightly for better contrast with white icon */
+    --text-secondary: #b0b0b0;
+    --link-color: #4a90e2;
     --link-hover: #99ccff;
     --badge-bg: #555;
     --shadow-light: rgba(0,0,0,0.3);
     --shadow-hover: rgba(0,0,0,0.4);
-    --input-bg: #3a3a3a; /* Lightened for better contrast with page background */
+    --input-bg: #3a3a3a;
     --input-bg-focus: #444;
     --input-shadow: rgba(102,176,255,0.3);
   }
@@ -99,29 +99,12 @@ description: "My own created tools"
     -webkit-line-clamp: 3;
     -webkit-box-orient: vertical;
     line-height: 1.6em;
-    transition: opacity 0.3s;
-  }
-  .tool-description.lazy-load {
-    opacity: 0.3;
-    background: linear-gradient(90deg, var(--input-bg) 25%, var(--card-border) 50%, var(--input-bg) 75%);
-    background-size: 200% 100%;
-    animation: shimmer 1.5s infinite;
-  }
-  .tool-description.loaded {
-    opacity: 1;
-    background: none;
-    animation: none;
-  }
-
-  @keyframes shimmer {
-    0% { background-position: 200% 0; }
-    100% { background-position: -200% 0; }
   }
 
   .language-badge {
     display: inline-block;
     font-size: 0.75em;
-    color: var(--text-primary); /* Changed to primary for better contrast */
+    color: var(--text-primary);
     background: var(--badge-bg);
     padding: 2px 6px;
     border-radius: 3px;
@@ -208,7 +191,7 @@ description: "My own created tools"
     box-shadow: inset 0 1px 3px var(--shadow-light);
     vertical-align: middle;
     appearance: none;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='var(--text-secondary)' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23777' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
     background-repeat: no-repeat;
     background-position: right 10px center;
   }
@@ -326,8 +309,8 @@ description: "My own created tools"
           {% endif %}
         </h3>
         <div class="description-container">
-          <p class="tool-description lazy-load" data-description="{{ repo.description | default: 'No description provided.' | escape }}">
-            Loading description...
+          <p class="tool-description">
+            {{ repo.description | default: 'No description provided.' | escape }}
           </p>
         </div>
       </div>
@@ -344,6 +327,13 @@ description: "My own created tools"
 </button>
 
 <script>
+  // Polyfill for IntersectionObserver (for older browsers)
+  if (!('IntersectionObserver' in window)) {
+    const script = document.createElement('script');
+    script.src = 'https://polyfill.io/v3/polyfill.min.js?features=IntersectionObserver';
+    document.head.appendChild(script);
+  }
+
   const ITEMS_PER_BATCH = 6; // Number of tools to load per batch
   let allCards = [];
   let visibleCards = [];
@@ -451,6 +441,11 @@ description: "My own created tools"
 
   function setupInfiniteScroll() {
     const loadMore = document.getElementById('load-more');
+    if (!loadMore) {
+      console.error('Load More element not found');
+      return;
+    }
+
     const observer = new IntersectionObserver((entries, obs) => {
       entries.forEach(entry => {
         if (entry.isIntersecting && currentBatch * ITEMS_PER_BATCH < visibleCards.length) {
@@ -458,25 +453,19 @@ description: "My own created tools"
           loadMoreTools();
         }
       });
-    }, { rootMargin: '100px' });
+    }, { rootMargin: '200px' });
 
     observer.observe(loadMore);
-  }
 
-  function lazyLoadDescriptions() {
-    const observer = new IntersectionObserver((entries, obs) => {
-      entries.forEach(entry => {
-        if (entry.isIntersecting) {
-          const desc = entry.target;
-          desc.textContent = desc.dataset.description;
-          desc.classList.remove('lazy-load');
-          desc.classList.add('loaded');
-          obs.unobserve(desc);
-        }
-      });
-    }, { rootMargin: '100px' });
-
-    document.querySelectorAll('.tool-description.lazy-load').forEach(desc => observer.observe(desc));
+    // Fallback: If the observer doesn't trigger within 2 seconds, manually check
+    setTimeout(() => {
+      const rect = loadMore.getBoundingClientRect();
+      const isInViewport = rect.top >= 0 && rect.bottom <= window.innerHeight;
+      if (isInViewport && currentBatch * ITEMS_PER_BATCH < visibleCards.length) {
+        currentBatch++;
+        loadMoreTools();
+      }
+    }, 2000);
   }
 
   // Event listeners
@@ -500,10 +489,12 @@ description: "My own created tools"
   });
   btn.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
 
-  // Initialize lazy loading and infinite scroll
+  // Initialize infinite scroll
   document.addEventListener('DOMContentLoaded', () => {
-    lazyLoadDescriptions();
     allCards = Array.from(document.querySelectorAll('.tool-card'));
+    if (allCards.length === 0) {
+      console.warn('No tool cards found in the DOM');
+    }
     filterTools(); // Initial filter to set up infinite scroll
     setupInfiniteScroll();
   });
