@@ -7,36 +7,6 @@ description: "My own created tools"
 ---
 
 <style>
-  :root {
-    --card-bg: #f7f7f7;
-    --card-border: #e0e0e0;
-    --text-primary: #333;
-    --text-secondary: #666;
-    --link-color: #007bff;
-    --link-hover: #0056b3;
-    --badge-bg: #e0e0e0;
-    --shadow-light: rgba(0,0,0,0.1);
-    --shadow-hover: rgba(0,0,0,0.15);
-    --input-bg: #f0f0f0;
-    --input-bg-focus: #fff;
-    --input-shadow: rgba(0,123,255,0.3);
-  }
-
-  [theme="dark"] {
-    --card-bg: #333;
-    --card-border: #4a4a4a;
-    --text-primary: #e0e0e0;
-    --text-secondary: #b0b0b0;
-    --link-color: #4a90e2;
-    --link-hover: #99ccff;
-    --badge-bg: #555;
-    --shadow-light: rgba(0,0,0,0.3);
-    --shadow-hover: rgba(0,0,0,0.4);
-    --input-bg: #3a3a3a;
-    --input-bg-focus: #444;
-    --input-shadow: rgba(102,176,255,0.3);
-  }
-
   #tools-list {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
@@ -45,27 +15,23 @@ description: "My own created tools"
   }
 
   .tool-card {
-    background-color: var(--card-bg);
-    border: 1px solid var(--card-border);
+    background-color: #f7f7f7;
+    border: 1px solid #e0e0e0;
     border-radius: 8px;
     padding: 15px;
-    box-shadow: 0 2px 5px var(--shadow-light);
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
     transition: transform 0.2s, box-shadow 0.2s, background-color 0.3s;
     display: flex;
     flex-direction: column;
     justify-content: space-between;
-    cursor: pointer; /* Indicate the card is clickable */
-  }
-  .tool-card.hidden {
-    display: none;
   }
   .tool-card:hover {
     transform: translateY(-5px);
-    box-shadow: 0 4px 10px var(--shadow-hover);
-    background-color: var(--card-bg);
+    box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+    background-color: #fff;
   }
   .tool-card:focus-within {
-    outline: 2px solid var(--link-color);
+    outline: 2px solid #007bff;
     outline-offset: 2px;
   }
 
@@ -73,15 +39,15 @@ description: "My own created tools"
     margin: 0 0 10px;
     font-size: 1.2em;
     font-weight: 600;
-    color: var(--text-primary);
+    color: #333;
   }
   .tool-card h3 a {
-    color: var(--link-color);
+    color: #007bff;
     text-decoration: none;
     transition: color 0.2s;
   }
   .tool-card h3 a:hover {
-    color: var(--link-hover);
+    color: #0056b3;
     text-decoration: underline;
   }
 
@@ -92,7 +58,7 @@ description: "My own created tools"
   }
   .tool-description {
     font-size: 0.9em;
-    color: var(--text-secondary);
+    color: #666;
     margin: 0;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -100,13 +66,30 @@ description: "My own created tools"
     -webkit-line-clamp: 3;
     -webkit-box-orient: vertical;
     line-height: 1.6em;
+    transition: opacity 0.3s;
+  }
+  .tool-description.lazy-load {
+    opacity: 0.3;
+    background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+    background-size: 200% 100%;
+    animation: shimmer 1.5s infinite;
+  }
+  .tool-description.loaded {
+    opacity: 1;
+    background: none;
+    animation: none;
+  }
+
+  @keyframes shimmer {
+    0% { background-position: 200% 0; }
+    100% { background-position: -200% 0; }
   }
 
   .language-badge {
     display: inline-block;
     font-size: 0.75em;
-    color: var(--text-primary);
-    background: var(--badge-bg);
+    color: #666;
+    background: #e0e0e0;
     padding: 2px 6px;
     border-radius: 3px;
     margin-left: 5px;
@@ -131,19 +114,15 @@ description: "My own created tools"
     padding: 12px 40px 12px 16px;
     border: none;
     border-radius: 25px;
-    background-color: var(--input-bg);
+    background-color: #f0f0f0;
     font-size: 1em;
-    color: var(--text-primary);
     transition: background-color 0.3s, box-shadow 0.3s;
-    box-shadow: inset 0 1px 3px var(--shadow-light);
+    box-shadow: inset 0 1px 3px rgba(0,0,0,0.1);
   }
   #filter-input:focus {
-    background-color: var(--input-bg-focus);
-    box-shadow: 0 0 8px var(--input-shadow);
+    background-color: #fff;
+    box-shadow: 0 0 8px rgba(0,123,255,0.3);
     outline: none;
-  }
-  #filter-input::placeholder {
-    color: var(--text-secondary);
   }
 
   #clear-filter {
@@ -154,14 +133,14 @@ description: "My own created tools"
     background: transparent;
     border: none;
     font-size: 1em;
-    color: var(--text-secondary);
+    color: #777;
     cursor: pointer;
     padding: 5px;
     display: none;
     transition: color 0.2s;
   }
   #clear-filter:hover {
-    color: var(--link-color);
+    color: #007bff;
   }
   #clear-filter.visible {
     display: block;
@@ -175,41 +154,30 @@ description: "My own created tools"
   }
   .sort-container label {
     font-size: 0.9em;
-    color: var(--text-primary);
+    color: #333;
     margin-right: 8px;
     display: inline-block;
     vertical-align: middle;
   }
   #sort-tools {
-    width: 130px;
-    padding: 10px 30px 10px 14px;
+    width: 150px; /* Increased width for arrow space */
+    padding: 10px 30px 10px 14px; /* Adjusted padding to ensure arrow has space */
     border: none;
     border-radius: 25px;
-    background-color: var(--input-bg);
+    background-color: #f0f0f0;
     font-size: 0.9em;
-    color: var(--text-primary);
     transition: background-color 0.3s, box-shadow 0.3s;
-    box-shadow: inset 0 1px 3px var(--shadow-light);
+    box-shadow: inset 0 1px 3px rgba(0,0,0,0.1);
     vertical-align: middle;
-    appearance: none;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='var(--text-secondary)' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+    appearance: none; /* Remove default browser styling */
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23777' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
     background-repeat: no-repeat;
     background-position: right 10px center;
   }
   #sort-tools:focus {
-    background-color: var(--input-bg-focus);
-    box-shadow: 0 0 8px var(--input-shadow);
+    background-color: #fff;
+    box-shadow: 0 0 8px rgba(0,123,255,0.3);
     outline: none;
-  }
-
-  #load-more {
-    text-align: center;
-    padding: 20px;
-    font-size: 1em;
-    color: var(--text-secondary);
-  }
-  #load-more.hidden {
-    display: none;
   }
 
   .center-card {
@@ -228,14 +196,14 @@ description: "My own created tools"
   .icon-css      { color: #264de4; }
   .icon-php      { color: #777bb4; }
   .icon-powershell { color: #012456; }
-  .icon-default  { color: var(--link-color); }
+  .icon-default  { color: #007bff; }
 
   .spinner { display: none; }
 
   #back-to-top {
     position: fixed; bottom: 20px; right: 20px;
     width: 40px; height: 40px;
-    background: var(--link-color); color: #fff;
+    background: #007bff; color: #fff;
     border: none; border-radius: 50%;
     display: flex; align-items: center; justify-content: center;
     cursor: pointer; opacity: 0; visibility: hidden;
@@ -264,11 +232,6 @@ description: "My own created tools"
 </p>
 <p>
   Below is a dynamically generated list of my tools. You can use the filter box to quickly search for a specific tool or sort them by different criteria.
-</p>
-
-<!-- Debug: Log the repos data to verify it's available -->
-<p id="debug-repos" style="display: none;">
-  {{ site.data.repos | inspect }}
 </p>
 
 <div class="controls-container">
@@ -315,8 +278,8 @@ description: "My own created tools"
           {% endif %}
         </h3>
         <div class="description-container">
-          <p class="tool-description">
-            {{ repo.description | default: 'No description provided.' | escape }}
+          <p class="tool-description lazy-load" data-description="{{ repo.description | default: 'No description provided.' | escape }}">
+            Loading description...
           </p>
         </div>
       </div>
@@ -326,330 +289,127 @@ description: "My own created tools"
   {% endif %}
 </div>
 
-<div id="load-more">Loading more tools...</div>
-
 <button id="back-to-top" title="Back to Top">
   <i class="fas fa-arrow-up"></i>
 </button>
 
 <script>
-  // Inline IntersectionObserver polyfill to avoid CSP issues
-  (function() {
-    if (!('IntersectionObserver' in window)) {
-      window.IntersectionObserver = class IntersectionObserver {
-        constructor(callback, options) {
-          this.callback = callback;
-          this.options = options;
-          this.elements = new Set();
-        }
-        observe(element) {
-          this.elements.add(element);
-          // Fallback: Trigger callback immediately for simplicity
-          this.callback([{ isIntersecting: true, target: element }]);
-        }
-        unobserve(element) {
-          this.elements.delete(element);
-        }
-        disconnect() {
-          this.elements.clear();
-        }
-      };
-    }
-  })();
-
-  const ITEMS_PER_BATCH = 6; // Number of tools to load per batch
-  let allCards = [];
-  let visibleCards = [];
-  let currentBatch = 0;
-
   function filterTools() {
-    try {
-      const filterInput = document.getElementById('filter-input');
-      if (!filterInput) {
-        console.error('Filter input element not found');
-        return;
-      }
-
-      const q = filterInput.value.toLowerCase();
-      allCards = Array.from(document.querySelectorAll('.tool-card'));
-      visibleCards = [];
-      let visible = 0;
-
-      allCards.forEach(c => {
-        const title = c.querySelector('h3').innerText.toLowerCase();
-        if (title.includes(q)) {
-          visibleCards.push(c);
-          visible++;
-        } else {
-          c.classList.add('hidden');
-        }
-        c.classList.remove('center-card');
-      });
-
-      console.log(`Filtered ${visible} tools with query "${q}"`);
-
-      // Update ARIA live region
-      const status = document.getElementById('filter-status');
-      if (status) {
-        status.textContent = `${visible} tool${visible === 1 ? '' : 's'} found.`;
-      }
-
-      if (!visible) {
-        if (!document.getElementById('no-results')) {
-          const msg = document.createElement('p');
-          msg.id = 'no-results';
-          msg.textContent = 'No tools found matching your search.';
-          document.getElementById('tools-list').append(msg);
-        }
+    const q = document.getElementById('filter-input').value.toLowerCase();
+    const cards = document.querySelectorAll('.tool-card');
+    let visible = 0;
+    cards.forEach(c => {
+      const title = c.querySelector('h3').innerText.toLowerCase();
+      if (title.includes(q)) {
+        c.style.display = 'flex';
+        visible++;
       } else {
-        const nr = document.getElementById('no-results');
-        if (nr) nr.remove();
+        c.style.display = 'none';
       }
+      c.classList.remove('center-card');
+    });
 
-      // Reset infinite scroll
-      currentBatch = 0;
-      loadMoreTools();
+    // Update ARIA live region
+    const status = document.getElementById('filter-status');
+    status.textContent = `${visible} tool${visible === 1 ? '' : 's'} found.`;
 
-      // Update clear button visibility
-      const clearBtn = document.getElementById('clear-filter');
-      if (clearBtn) {
-        clearBtn.classList.toggle('visible', filterInput.value.length > 0);
+    if (!visible) {
+      if (!document.getElementById('no-results')) {
+        const msg = document.createElement('p');
+        msg.id = 'no-results';
+        msg.textContent = 'No tools found matching your search.';
+        document.getElementById('tools-list').append(msg);
       }
-    } catch (error) {
-      console.error('Error in filterTools:', error);
+    } else {
+      const nr = document.getElementById('no-results');
+      if (nr) nr.remove();
     }
+
+    // Apply center-card class to the last visible card if odd
+    const visibleCards = Array.from(cards).filter(c => c.style.display !== 'none');
+    if (visibleCards.length % 2 === 1) {
+      visibleCards[visibleCards.length - 1].classList.add('center-card');
+    }
+
+    // Update clear button visibility
+    const clearBtn = document.getElementById('clear-filter');
+    clearBtn.classList.toggle('visible', filterInput.value.length > 0);
   }
 
   function sortTools() {
-    try {
-      const sortSelect = document.getElementById('sort-tools');
-      if (!sortSelect) {
-        console.error('Sort select element not found');
-        return;
+    const sortValue = document.getElementById('sort-tools').value;
+    const cards = Array.from(document.querySelectorAll('.tool-card'));
+    const container = document.getElementById('tools-list');
+
+    cards.sort((a, b) => {
+      const aName = a.querySelector('h3').innerText.toLowerCase();
+      const bName = b.querySelector('h3').innerText.toLowerCase();
+      const aLang = a.querySelector('.language-badge')?.textContent.toLowerCase() || '';
+      const bLang = b.querySelector('.language-badge')?.textContent.toLowerCase() || '';
+
+      if (sortValue === 'name-asc') return aName.localeCompare(bName);
+      if (sortValue === 'name-desc') return bName.localeCompare(aName);
+      if (sortValue === 'language') {
+        return aLang === bLang ? aName.localeCompare(bName) : aLang.localeCompare(bLang);
       }
+      return 0;
+    });
 
-      const sortValue = sortSelect.value;
-      const container = document.getElementById('tools-list');
-      if (!container) {
-        console.error('Tools list container not found');
-        return;
-      }
+    // Re-append sorted cards
+    container.innerHTML = '';
+    cards.forEach(card => container.appendChild(card));
 
-      const cards = Array.from(document.querySelectorAll('.tool-card'));
-      if (!cards.length) {
-        console.warn('No tool cards found for sorting');
-        return;
-      }
+    // Re-apply filter and centering
+    filterTools();
+  }
 
-      cards.sort((a, b) => {
-        const aName = a.querySelector('h3').innerText.toLowerCase();
-        const bName = b.querySelector('h3').innerText.toLowerCase();
-        const aLang = a.querySelector('.language-badge')?.textContent.toLowerCase() || '';
-        const bLang = b.querySelector('.language-badge')?.textContent.toLowerCase() || '';
-
-        if (sortValue === 'name-asc') return aName.localeCompare(bName);
-        if (sortValue === 'name-desc') return bName.localeCompare(aName);
-        if (sortValue === 'language') {
-          return aLang === bLang ? aName.localeCompare(bName) : aLang.localeCompare(bLang);
+  function lazyLoadDescriptions() {
+    const observer = new IntersectionObserver((entries, obs) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          const desc = entry.target;
+          desc.textContent = desc.dataset.description;
+          desc.classList.remove('lazy-load');
+          desc.classList.add('loaded');
+          obs.unobserve(desc);
         }
-        return 0;
       });
+    }, { rootMargin: '100px' });
 
-      console.log(`Sorted tools by ${sortValue}`);
-
-      // Re-append sorted cards
-      container.innerHTML = '';
-      cards.forEach(card => container.appendChild(card));
-
-      // Re-apply filter and infinite scroll
-      filterTools();
-    } catch (error) {
-      console.error('Error in sortTools:', error);
-    }
+    document.querySelectorAll('.tool-description.lazy-load').forEach(desc => observer.observe(desc));
   }
 
-  function loadMoreTools() {
-    try {
-      const start = currentBatch * ITEMS_PER_BATCH;
-      const end = Math.min(start + ITEMS_PER_BATCH, visibleCards.length);
+  // Event listeners
+  const filterInput = document.getElementById('filter-input');
+  const clearBtn = document.getElementById('clear-filter');
 
-      // Hide all cards first
-      allCards.forEach(c => c.classList.add('hidden'));
+  filterInput.addEventListener('input', filterTools);
 
-      // Show cards up to the current batch
-      for (let i = 0; i < end; i++) {
-        visibleCards[i].classList.remove('hidden');
+  clearBtn.addEventListener('click', () => {
+    filterInput.value = '';
+    filterTools();
+    clearBtn.classList.remove('visible');
+    filterInput.focus();
+  });
+
+  document.getElementById('sort-tools').addEventListener('change', sortTools);
+
+  const btn = document.getElementById('back-to-top');
+  window.addEventListener('scroll', () => {
+    window.scrollY > 300 ? btn.classList.add('visible') : btn.classList.remove('visible');
+  });
+  btn.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
+
+  // Initialize lazy loading
+  document.addEventListener('DOMContentLoaded', lazyLoadDescriptions);
+
+  // Handle keyboard navigation for cards
+  document.querySelectorAll('.tool-card').forEach(card => {
+    card.addEventListener('keydown', e => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        card.querySelector('h3 a')?.click();
       }
-
-      // Apply center-card class to the last visible card if odd
-      const shownCards = visibleCards.slice(0, end);
-      if (shownCards.length % 2 === 1) {
-        shownCards[shownCards.length - 1].classList.add('center-card');
-      }
-
-      // Hide "Load More" if all cards are shown
-      const loadMore = document.getElementById('load-more');
-      if (loadMore) {
-        if (end >= visibleCards.length) {
-          loadMore.classList.add('hidden');
-        } else {
-          loadMore.classList.remove('hidden');
-        }
-      }
-
-      console.log(`Loaded batch ${currentBatch}: Showing ${end} of ${visibleCards.length} tools`);
-
-      // Announce loaded items for accessibility
-      const status = document.getElementById('filter-status');
-      if (status) {
-        status.textContent = `Showing ${end} of ${visibleCards.length} tool${visibleCards.length === 1 ? '' : 's'}.`;
-      }
-    } catch (error) {
-      console.error('Error in loadMoreTools:', error);
-    }
-  }
-
-  function setupInfiniteScroll() {
-    try {
-      const loadMore = document.getElementById('load-more');
-      if (!loadMore) {
-        console.error('Load More element not found');
-        return;
-      }
-
-      const observer = new IntersectionObserver((entries, obs) => {
-        entries.forEach(entry => {
-          if (entry.isIntersecting && currentBatch * ITEMS_PER_BATCH < visibleCards.length) {
-            currentBatch++;
-            loadMoreTools();
-          }
-        });
-      }, { rootMargin: '200px' });
-
-      observer.observe(loadMore);
-
-      // Fallback: If the observer doesn't trigger within 2 seconds, manually check
-      setTimeout(() => {
-        const rect = loadMore.getBoundingClientRect();
-        const isInViewport = rect.top >= 0 && rect.bottom <= window.innerHeight;
-        if (isInViewport && currentBatch * ITEMS_PER_BATCH < visibleCards.length) {
-          currentBatch++;
-          loadMoreTools();
-        }
-      }, 2000);
-
-      console.log('Infinite scroll observer set up');
-    } catch (error) {
-      console.error('Error in setupInfiniteScroll:', error);
-    }
-  }
-
-  function initialize() {
-    try {
-      // Debug: Log the repos data
-      const debugRepos = document.getElementById('debug-repos');
-      if (debugRepos) {
-        console.log('site.data.repos:', debugRepos.textContent);
-      } else {
-        console.warn('Debug repos element not found');
-      }
-
-      // Initialize cards
-      allCards = Array.from(document.querySelectorAll('.tool-card'));
-      if (allCards.length === 0) {
-        console.warn('No tool cards found in the DOM');
-      } else {
-        console.log(`Found ${allCards.length} tool cards`);
-      }
-
-      // Set up filter input event listener
-      const filterInput = document.getElementById('filter-input');
-      if (filterInput) {
-        filterInput.addEventListener('input', filterTools);
-        console.log('Filter input event listener attached');
-      } else {
-        console.error('Filter input element not found during initialization');
-      }
-
-      // Set up clear filter button event listener
-      const clearBtn = document.getElementById('clear-filter');
-      if (clearBtn) {
-        clearBtn.addEventListener('click', () => {
-          if (filterInput) {
-            filterInput.value = '';
-            filterTools();
-            clearBtn.classList.remove('visible');
-            filterInput.focus();
-          }
-        });
-        console.log('Clear filter button event listener attached');
-      } else {
-        console.error('Clear filter button not found');
-      }
-
-      // Set up sort select event listener
-      const sortSelect = document.getElementById('sort-tools');
-      if (sortSelect) {
-        sortSelect.addEventListener('change', sortTools);
-        console.log('Sort select event listener attached');
-      } else {
-        console.error('Sort select element not found during initialization');
-      }
-
-      // Set up click and keyboard navigation for cards
-      allCards.forEach(card => {
-        // Click event
-        card.addEventListener('click', () => {
-          const link = card.querySelector('h3 a');
-          if (link) {
-            window.open(link.href, '_blank');
-          }
-        });
-
-        // Keyboard event (Enter or Space)
-        card.addEventListener('keydown', e => {
-          if (e.key === 'Enter' || e.key === ' ') {
-            e.preventDefault();
-            const link = card.querySelector('h3 a');
-            if (link) {
-              window.open(link.href, '_blank');
-            }
-          }
-        });
-      });
-      console.log('Card click and keyboard event listeners attached');
-
-      // Set up back to top button
-      const backToTopBtn = document.getElementById('back-to-top');
-      if (backToTopBtn) {
-        window.addEventListener('scroll', () => {
-          window.scrollY > 300 ? backToTopBtn.classList.add('visible') : backToTopBtn.classList.remove('visible');
-        });
-        backToTopBtn.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
-        console.log('Back to top button event listeners attached');
-      } else {
-        console.error('Back to top button not found');
-      }
-
-      // Initial filter and infinite scroll setup
-      filterTools();
-      setupInfiniteScroll();
-    } catch (error) {
-      console.error('Error during initialization:', error);
-    }
-  }
-
-  // Use window.onload to ensure all resources are loaded
-  window.onload = () => {
-    console.log('Window loaded, initializing...');
-    initialize();
-  };
-
-  // Fallback: If window.onload doesn't fire, try DOMContentLoaded
-  document.addEventListener('DOMContentLoaded', () => {
-    console.log('DOM content loaded, checking if initialization is needed...');
-    if (!allCards.length) {
-      initialize();
-    }
+    });
   });
 </script>
