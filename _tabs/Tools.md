@@ -7,36 +7,6 @@ description: "My own created tools"
 ---
 
 <style>
-  :root {
-    --card-bg: #f7f7f7;
-    --card-border: #e0e0e0;
-    --text-primary: #333;
-    --text-secondary: #666;
-    --link-color: #007bff;
-    --link-hover: #0056b3;
-    --badge-bg: #e0e0e0;
-    --shadow-light: rgba(0,0,0,0.1);
-    --shadow-hover: rgba(0,0,0,0.15);
-    --input-bg: #f0f0f0;
-    --input-bg-focus: #fff;
-    --input-shadow: rgba(0,123,255,0.3);
-  }
-
-  [theme="dark"] {
-    --card-bg: #333;
-    --card-border: #4a4a4a;
-    --text-primary: #e0e0e0;
-    --text-secondary: #b0b0b0;
-    --link-color: #4a90e2;
-    --link-hover: #99ccff;
-    --badge-bg: #555;
-    --shadow-light: rgba(0,0,0,0.3);
-    --shadow-hover: rgba(0,0,0,0.4);
-    --input-bg: #3a3a3a;
-    --input-bg-focus: #444;
-    --input-shadow: rgba(102,176,255,0.3);
-  }
-
   #tools-list {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
@@ -45,27 +15,23 @@ description: "My own created tools"
   }
 
   .tool-card {
-    background-color: var(--card-bg);
-    border: 1px solid var(--card-border);
+    background-color: #f7f7f7;
+    border: 1px solid #e0e0e0;
     border-radius: 8px;
     padding: 15px;
-    box-shadow: 0 2px 5px var(--shadow-light);
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
     transition: transform 0.2s, box-shadow 0.2s, background-color 0.3s;
     display: flex;
     flex-direction: column;
     justify-content: space-between;
-    cursor: pointer; /* Indicate the card is clickable */
-  }
-  .tool-card.hidden {
-    display: none;
   }
   .tool-card:hover {
     transform: translateY(-5px);
-    box-shadow: 0 4px 10px var(--shadow-hover);
-    background-color: var(--card-bg);
+    box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+    background-color: #fff;
   }
   .tool-card:focus-within {
-    outline: 2px solid var(--link-color);
+    outline: 2px solid #007bff;
     outline-offset: 2px;
   }
 
@@ -73,15 +39,15 @@ description: "My own created tools"
     margin: 0 0 10px;
     font-size: 1.2em;
     font-weight: 600;
-    color: var(--text-primary);
+    color: #333;
   }
   .tool-card h3 a {
-    color: var(--link-color);
+    color: #007bff;
     text-decoration: none;
     transition: color 0.2s;
   }
   .tool-card h3 a:hover {
-    color: var(--link-hover);
+    color: #0056b3;
     text-decoration: underline;
   }
 
@@ -92,7 +58,7 @@ description: "My own created tools"
   }
   .tool-description {
     font-size: 0.9em;
-    color: var(--text-secondary);
+    color: #666;
     margin: 0;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -105,111 +71,24 @@ description: "My own created tools"
   .language-badge {
     display: inline-block;
     font-size: 0.75em;
-    color: var(--text-primary);
-    background: var(--badge-bg);
+    color: #666;
+    background: #e0e0e0;
     padding: 2px 6px;
     border-radius: 3px;
     margin-left: 5px;
     vertical-align: middle;
   }
 
-  .controls-container {
-    max-width: 600px;
-    margin: 0 auto 20px;
-    display: flex;
-    flex-wrap: wrap;
-    gap: 15px;
-    align-items: center;
-  }
-  .filter-container {
-    position: relative;
-    flex: 1;
-    min-width: 200px;
-  }
   #filter-input {
     width: 100%;
-    padding: 12px 40px 12px 16px;
-    border: none;
-    border-radius: 25px;
-    background-color: var(--input-bg);
-    font-size: 1em;
-    color: var(--text-primary);
-    transition: background-color 0.3s, box-shadow 0.3s;
-    box-shadow: inset 0 1px 3px var(--shadow-light);
+    padding: 8px 12px;
+    margin-bottom: 20px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
   }
   #filter-input:focus {
-    background-color: var(--input-bg-focus);
-    box-shadow: 0 0 8px var(--input-shadow);
-    outline: none;
-  }
-  #filter-input::placeholder {
-    color: var(--text-secondary);
-  }
-
-  #clear-filter {
-    position: absolute;
-    right: 15px;
-    top: 50%;
-    transform: translateY(-50%);
-    background: transparent;
-    border: none;
-    font-size: 1em;
-    color: var(--text-secondary);
-    cursor: pointer;
-    padding: 5px;
-    display: none;
-    transition: color 0.2s;
-  }
-  #clear-filter:hover {
-    color: var(--link-color);
-  }
-  #clear-filter.visible {
-    display: block;
-  }
-
-  .sort-container {
-    flex: 0 0 auto;
-    min-width: 200px;
-    display: flex;
-    align-items: center;
-  }
-  .sort-container label {
-    font-size: 0.9em;
-    color: var(--text-primary);
-    margin-right: 8px;
-    display: inline-block;
-    vertical-align: middle;
-  }
-  #sort-tools {
-    width: 130px;
-    padding: 10px 30px 10px 14px;
-    border: none;
-    border-radius: 25px;
-    background-color: var(--input-bg);
-    font-size: 0.9em;
-    color: var(--text-primary);
-    transition: background-color 0.3s, box-shadow 0.3s;
-    box-shadow: inset 0 1px 3px var(--shadow-light);
-    vertical-align: middle;
-    appearance: none;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='var(--text-secondary)' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
-    background-repeat: no-repeat;
-    background-position: right 10px center;
-  }
-  #sort-tools:focus {
-    background-color: var(--input-bg-focus);
-    box-shadow: 0 0 8px var(--input-shadow);
-    outline: none;
-  }
-
-  #load-more {
-    text-align: center;
-    padding: 20px;
-    font-size: 1em;
-    color: var(--text-secondary);
-  }
-  #load-more.hidden {
-    display: none;
+    outline: 2px solid #007bff;
+    border-color: #007bff;
   }
 
   .center-card {
@@ -228,14 +107,14 @@ description: "My own created tools"
   .icon-css      { color: #264de4; }
   .icon-php      { color: #777bb4; }
   .icon-powershell { color: #012456; }
-  .icon-default  { color: var(--link-color); }
+  .icon-default  { color: #007bff; }
 
   .spinner { display: none; }
 
   #back-to-top {
     position: fixed; bottom: 20px; right: 20px;
     width: 40px; height: 40px;
-    background: var(--link-color); color: #fff;
+    background: #007bff; color: #fff;
     border: none; border-radius: 50%;
     display: flex; align-items: center; justify-content: center;
     cursor: pointer; opacity: 0; visibility: hidden;
@@ -243,17 +122,6 @@ description: "My own created tools"
   }
   #back-to-top.visible {
     opacity: 1; visibility: visible;
-  }
-
-  .visually-hidden {
-    position: absolute;
-    width: 1px;
-    height: 1px;
-    padding: 0;
-    margin: -1px;
-    overflow: hidden;
-    clip: rect(0, 0, 0, 0);
-    border: 0;
   }
 </style>
 
