@@ -1,7 +1,7 @@
 ---
 title: Intuition
 description: season 5 - Hard
-date: 2024-04-27 02:47:35 +/-0005
+date: 2024-03-09 02:47:35 +/-0005
 categories: [WalkThrough, HTB]
 tags: [Linux, HTB, Hard]
 ---
