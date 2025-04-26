@@ -263,36 +263,14 @@ description: "My own created tools"
   <a href="https://github.com/B4l3rI0n?tab=repositories" target="_blank">B4l3rI0n</a>
 </p>
 <p>
-  Below is a dynamically generated list of my tools. You can use the filter box to quickly search for a specific tool or sort them by different criteria.
+  Below is a dynamically generated list of my tools. You can use the filter box to quickly search for a specific tool.
 </p>
 
-<!-- Debug: Log the repos data to verify it's available -->
-<p id="debug-repos" style="display: none;">
-  {{ site.data.repos | inspect }}
-</p>
-
-<div class="controls-container">
-  <div class="filter-container">
-    <input type="text" id="filter-input" placeholder="Search tools…" aria-label="Filter tools by name" />
-    <button id="clear-filter" aria-label="Clear filter">
-      <i class="fas fa-times"></i>
-    </button>
-  </div>
-  <div class="sort-container">
-    <label for="sort-tools">Sort by:</label>
-    <select id="sort-tools" aria-label="Sort tools">
-      <option value="name-asc">Name (A-Z)</option>
-      <option value="name-desc">Name (Z-A)</option>
-      <option value="language">Language</option>
-    </select>
-  </div>
-</div>
-
-<div id="filter-status" aria-live="polite" class="visually-hidden"></div>
+<input type="text" id="filter-input" placeholder="Filter tools by name…" aria-label="Filter tools by name" />
 
 <div id="tools-list">
-  {% assign repos = site.data.repos %}
-  {% assign total = repos | size %}
+  {% assign repos  = site.data.repos %}
+  {% assign total  = repos | size %}
   {% assign last_index = total | minus: 1 %}
   {% assign odd = total | modulo: 2 %}
 
@@ -306,7 +284,7 @@ description: "My own created tools"
       {% assign lang = repo.language | default: "default" %}
       {% assign iconData = site.data.language_icons[lang] | default: site.data.language_icons.default %}
 
-      <div class="tool-card {{ extra_class }}" role="article" aria-labelledby="tool-{{ repo.name }}" tabindex="0">
+      <div class="tool-card {{ extra_class }}" role="article" aria-labelledby="tool-{{ repo.name }}">
         <h3 id="tool-{{ repo.name }}">
           <i class="{{ iconData.icon }} tool-icon {{ iconData.style }}"></i>
           <a href="{{ repo.html_url }}" target="_blank">{{ repo.name }}</a>
@@ -316,7 +294,7 @@ description: "My own created tools"
         </h3>
         <div class="description-container">
           <p class="tool-description">
-            {{ repo.description | default: 'No description provided.' | escape }}
+            {{ repo.description | default: "No description provided." }}
           </p>
         </div>
       </div>
@@ -326,330 +304,48 @@ description: "My own created tools"
   {% endif %}
 </div>
 
-<div id="load-more">Loading more tools...</div>
-
 <button id="back-to-top" title="Back to Top">
   <i class="fas fa-arrow-up"></i>
 </button>
 
 <script>
-  // Inline IntersectionObserver polyfill to avoid CSP issues
-  (function() {
-    if (!('IntersectionObserver' in window)) {
-      window.IntersectionObserver = class IntersectionObserver {
-        constructor(callback, options) {
-          this.callback = callback;
-          this.options = options;
-          this.elements = new Set();
-        }
-        observe(element) {
-          this.elements.add(element);
-          // Fallback: Trigger callback immediately for simplicity
-          this.callback([{ isIntersecting: true, target: element }]);
-        }
-        unobserve(element) {
-          this.elements.delete(element);
-        }
-        disconnect() {
-          this.elements.clear();
-        }
-      };
-    }
-  })();
-
-  const ITEMS_PER_BATCH = 6; // Number of tools to load per batch
-  let allCards = [];
-  let visibleCards = [];
-  let currentBatch = 0;
-
   function filterTools() {
-    try {
-      const filterInput = document.getElementById('filter-input');
-      if (!filterInput) {
-        console.error('Filter input element not found');
-        return;
-      }
-
-      const q = filterInput.value.toLowerCase();
-      allCards = Array.from(document.querySelectorAll('.tool-card'));
-      visibleCards = [];
-      let visible = 0;
-
-      allCards.forEach(c => {
-        const title = c.querySelector('h3').innerText.toLowerCase();
-        if (title.includes(q)) {
-          visibleCards.push(c);
-          visible++;
-        } else {
-          c.classList.add('hidden');
-        }
-        c.classList.remove('center-card');
-      });
-
-      console.log(`Filtered ${visible} tools with query "${q}"`);
-
-      // Update ARIA live region
-      const status = document.getElementById('filter-status');
-      if (status) {
-        status.textContent = `${visible} tool${visible === 1 ? '' : 's'} found.`;
-      }
-
-      if (!visible) {
-        if (!document.getElementById('no-results')) {
-          const msg = document.createElement('p');
-          msg.id = 'no-results';
-          msg.textContent = 'No tools found matching your search.';
-          document.getElementById('tools-list').append(msg);
-        }
+    const q = document.getElementById('filter-input').value.toLowerCase();
+    const cards = document.querySelectorAll('.tool-card');
+    let visible = 0;
+    cards.forEach(c => {
+      const title = c.querySelector('h3').innerText.toLowerCase();
+      if (title.includes(q)) {
+        c.style.display = 'flex';
+        visible++;
       } else {
-        const nr = document.getElementById('no-results');
-        if (nr) nr.remove();
+        c.style.display = 'none';
       }
-
-      // Reset infinite scroll
-      currentBatch = 0;
-      loadMoreTools();
-
-      // Update clear button visibility
-      const clearBtn = document.getElementById('clear-filter');
-      if (clearBtn) {
-        clearBtn.classList.toggle('visible', filterInput.value.length > 0);
+      // Remove center-card class from all cards
+      c.classList.remove('center-card');
+    });
+    if (!visible) {
+      if (!document.getElementById('no-results')) {
+        const msg = document.createElement('p');
+        msg.id = 'no-results';
+        msg.textContent = 'No tools found matching your search.';
+        document.getElementById('tools-list').append(msg);
       }
-    } catch (error) {
-      console.error('Error in filterTools:', error);
+    } else {
+      const nr = document.getElementById('no-results');
+      if (nr) nr.remove();
+    }
+    // Apply center-card class to the last visible card if odd
+    const visibleCards = Array.from(cards).filter(c => c.style.display !== 'none');
+    if (visibleCards.length % 2 === 1) {
+      visibleCards[visibleCards.length - 1].classList.add('center-card');
     }
   }
+  document.getElementById('filter-input').addEventListener('input', filterTools);
 
-  function sortTools() {
-    try {
-      const sortSelect = document.getElementById('sort-tools');
-      if (!sortSelect) {
-        console.error('Sort select element not found');
-        return;
-      }
-
-      const sortValue = sortSelect.value;
-      const container = document.getElementById('tools-list');
-      if (!container) {
-        console.error('Tools list container not found');
-        return;
-      }
-
-      const cards = Array.from(document.querySelectorAll('.tool-card'));
-      if (!cards.length) {
-        console.warn('No tool cards found for sorting');
-        return;
-      }
-
-      cards.sort((a, b) => {
-        const aName = a.querySelector('h3').innerText.toLowerCase();
-        const bName = b.querySelector('h3').innerText.toLowerCase();
-        const aLang = a.querySelector('.language-badge')?.textContent.toLowerCase() || '';
-        const bLang = b.querySelector('.language-badge')?.textContent.toLowerCase() || '';
-
-        if (sortValue === 'name-asc') return aName.localeCompare(bName);
-        if (sortValue === 'name-desc') return bName.localeCompare(aName);
-        if (sortValue === 'language') {
-          return aLang === bLang ? aName.localeCompare(bName) : aLang.localeCompare(bLang);
-        }
-        return 0;
-      });
-
-      console.log(`Sorted tools by ${sortValue}`);
-
-      // Re-append sorted cards
-      container.innerHTML = '';
-      cards.forEach(card => container.appendChild(card));
-
-      // Re-apply filter and infinite scroll
-      filterTools();
-    } catch (error) {
-      console.error('Error in sortTools:', error);
-    }
-  }
-
-  function loadMoreTools() {
-    try {
-      const start = currentBatch * ITEMS_PER_BATCH;
-      const end = Math.min(start + ITEMS_PER_BATCH, visibleCards.length);
-
-      // Hide all cards first
-      allCards.forEach(c => c.classList.add('hidden'));
-
-      // Show cards up to the current batch
-      for (let i = 0; i < end; i++) {
-        visibleCards[i].classList.remove('hidden');
-      }
-
-      // Apply center-card class to the last visible card if odd
-      const shownCards = visibleCards.slice(0, end);
-      if (shownCards.length % 2 === 1) {
-        shownCards[shownCards.length - 1].classList.add('center-card');
-      }
-
-      // Hide "Load More" if all cards are shown
-      const loadMore = document.getElementById('load-more');
-      if (loadMore) {
-        if (end >= visibleCards.length) {
-          loadMore.classList.add('hidden');
-        } else {
-          loadMore.classList.remove('hidden');
-        }
-      }
-
-      console.log(`Loaded batch ${currentBatch}: Showing ${end} of ${visibleCards.length} tools`);
-
-      // Announce loaded items for accessibility
-      const status = document.getElementById('filter-status');
-      if (status) {
-        status.textContent = `Showing ${end} of ${visibleCards.length} tool${visibleCards.length === 1 ? '' : 's'}.`;
-      }
-    } catch (error) {
-      console.error('Error in loadMoreTools:', error);
-    }
-  }
-
-  function setupInfiniteScroll() {
-    try {
-      const loadMore = document.getElementById('load-more');
-      if (!loadMore) {
-        console.error('Load More element not found');
-        return;
-      }
-
-      const observer = new IntersectionObserver((entries, obs) => {
-        entries.forEach(entry => {
-          if (entry.isIntersecting && currentBatch * ITEMS_PER_BATCH < visibleCards.length) {
-            currentBatch++;
-            loadMoreTools();
-          }
-        });
-      }, { rootMargin: '200px' });
-
-      observer.observe(loadMore);
-
-      // Fallback: If the observer doesn't trigger within 2 seconds, manually check
-      setTimeout(() => {
-        const rect = loadMore.getBoundingClientRect();
-        const isInViewport = rect.top >= 0 && rect.bottom <= window.innerHeight;
-        if (isInViewport && currentBatch * ITEMS_PER_BATCH < visibleCards.length) {
-          currentBatch++;
-          loadMoreTools();
-        }
-      }, 2000);
-
-      console.log('Infinite scroll observer set up');
-    } catch (error) {
-      console.error('Error in setupInfiniteScroll:', error);
-    }
-  }
-
-  function initialize() {
-    try {
-      // Debug: Log the repos data
-      const debugRepos = document.getElementById('debug-repos');
-      if (debugRepos) {
-        console.log('site.data.repos:', debugRepos.textContent);
-      } else {
-        console.warn('Debug repos element not found');
-      }
-
-      // Initialize cards
-      allCards = Array.from(document.querySelectorAll('.tool-card'));
-      if (allCards.length === 0) {
-        console.warn('No tool cards found in the DOM');
-      } else {
-        console.log(`Found ${allCards.length} tool cards`);
-      }
-
-      // Set up filter input event listener
-      const filterInput = document.getElementById('filter-input');
-      if (filterInput) {
-        filterInput.addEventListener('input', filterTools);
-        console.log('Filter input event listener attached');
-      } else {
-        console.error('Filter input element not found during initialization');
-      }
-
-      // Set up clear filter button event listener
-      const clearBtn = document.getElementById('clear-filter');
-      if (clearBtn) {
-        clearBtn.addEventListener('click', () => {
-          if (filterInput) {
-            filterInput.value = '';
-            filterTools();
-            clearBtn.classList.remove('visible');
-            filterInput.focus();
-          }
-        });
-        console.log('Clear filter button event listener attached');
-      } else {
-        console.error('Clear filter button not found');
-      }
-
-      // Set up sort select event listener
-      const sortSelect = document.getElementById('sort-tools');
-      if (sortSelect) {
-        sortSelect.addEventListener('change', sortTools);
-        console.log('Sort select event listener attached');
-      } else {
-        console.error('Sort select element not found during initialization');
-      }
-
-      // Set up click and keyboard navigation for cards
-      allCards.forEach(card => {
-        // Click event
-        card.addEventListener('click', () => {
-          const link = card.querySelector('h3 a');
-          if (link) {
-            window.open(link.href, '_blank');
-          }
-        });
-
-        // Keyboard event (Enter or Space)
-        card.addEventListener('keydown', e => {
-          if (e.key === 'Enter' || e.key === ' ') {
-            e.preventDefault();
-            const link = card.querySelector('h3 a');
-            if (link) {
-              window.open(link.href, '_blank');
-            }
-          }
-        });
-      });
-      console.log('Card click and keyboard event listeners attached');
-
-      // Set up back to top button
-      const backToTopBtn = document.getElementById('back-to-top');
-      if (backToTopBtn) {
-        window.addEventListener('scroll', () => {
-          window.scrollY > 300 ? backToTopBtn.classList.add('visible') : backToTopBtn.classList.remove('visible');
-        });
-        backToTopBtn.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
-        console.log('Back to top button event listeners attached');
-      } else {
-        console.error('Back to top button not found');
-      }
-
-      // Initial filter and infinite scroll setup
-      filterTools();
-      setupInfiniteScroll();
-    } catch (error) {
-      console.error('Error during initialization:', error);
-    }
-  }
-
-  // Use window.onload to ensure all resources are loaded
-  window.onload = () => {
-    console.log('Window loaded, initializing...');
-    initialize();
-  };
-
-  // Fallback: If window.onload doesn't fire, try DOMContentLoaded
-  document.addEventListener('DOMContentLoaded', () => {
-    console.log('DOM content loaded, checking if initialization is needed...');
-    if (!allCards.length) {
-      initialize();
-    }
+  const btn = document.getElementById('back-to-top');
+  window.addEventListener('scroll', () => {
+    window.scrollY > 300 ? btn.classList.add('visible') : btn.classList.remove('visible');
   });
+  btn.addEventListener('click', () => window.scrollTo({top:0,behavior:'smooth'}));
 </script>
