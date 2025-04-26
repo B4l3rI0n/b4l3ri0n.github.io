@@ -10,6 +10,7 @@ _site
 
 # draft
 _drafts
+_posts/_draft
 _posts/HTB/_drafts
 _tabs/_draft
 # RubyGems
