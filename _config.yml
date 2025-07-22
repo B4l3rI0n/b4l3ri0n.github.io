@@ -19,7 +19,8 @@ title: B4l3rI0n # the main title
 tagline: I own your company # it will display as the subtitle
 
 description: >- # used by seo meta and the atom feed
-  Pentest, Writeups, Walkthrough, Ethical Hacking, AD, Active Directory
+Pentest and red teaming blog featuring HTB writeups, AD exploitation, walkthroughs, and ethical hacking tutorials.
+
 
 # Fill in the protocol & hostname for your site.
 # E.g. 'https://username.github.io', note that it does not end with a '/'.
@@ -44,18 +45,27 @@ social:
     # Uncomment below to add more social links
     # - https://www.facebook.com/username
     
+robots: index, follow
 
 # Site Verification Settings
 webmaster_verifications:
-  google: # fill in your Google verification code
+  google: DKBwTMktVbFQVsRurFDKpKBCm0N9KAuAzS2PVvCY1-c # fill in your Google verification code
   bing: # fill in your Bing verification code
   alexa: # fill in your Alexa verification code
   yandex: # fill in your Yandex verification code
   baidu: # fill in your Baidu verification code
   facebook: # fill in your Facebook verification code
 
+plugins:
+  - jekyll-seo-tag
+  - jekyll-sitemap
+
+
 # ↑ --------------------------
 # The end of `jekyll-seo-tag` settings
+
+
+
 
 # Web Analytics Settings
 analytics:
