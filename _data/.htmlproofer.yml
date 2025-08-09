@@ -1,3 +1,0 @@
-url_ignore:
-  - "http://university.htb/*"
-  - "/course/create/"
