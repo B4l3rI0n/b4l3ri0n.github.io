@@ -54,11 +54,10 @@ jobs:
         env:
           JEKYLL_ENV: "production"
 
+
       - name: Test site
-        run: |
-          bundle exec htmlproofer _site \
-            --disable-external \
-            --ignore-urls "/^http:\/\/127.0.0.1/,/^http:\/\/0.0.0.0/,/^http:\/\/localhost/,/^http:\/\/.*\.ghost\.htb.*/"
+        run: bundle exec htmlproofer _site --disable-external --ignore-urls "/^http:\/\/127\.0\.0\.1/,/^http:\/\/0\.0\.0\.0/,/^http:\/\/localhost/,/^http:\/\/.*\.ghost\.htb.*/,/^https?:\/\/([^\/]+\.)?university\.htb(\/.*)?$/,/(^|\/)university\.htb(\/.*)?$/"
+
 
 
 
