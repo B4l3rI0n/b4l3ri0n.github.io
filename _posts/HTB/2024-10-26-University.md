@@ -3,7 +3,7 @@ title: University
 description: HackTheBox Season 6 Machine — Level Insane
 date: 2025-01-25 02:47:35 +/-0005
 categories: [WalkThrough, HTB]
-tags: [Active Directory, HTB, Insane, Windows, Sliver, Ligolo-ng, Pivoting, DCSync, LPE, CVE‑2023‑21746, LocalPotato]
+tags: [Active Directory, HTB, Insane, Windows, Sliver, Ligolo-ng, Pivoting, DCSync, LPE, CVE‑2023‑21746, LocalPotato, CVE-2023-33733m RBCD]
 ---
 ![box-cover](https://cdn-images-1.medium.com/max/1000/0*yQTeukV6E1d3d0RO.jpg)
 _https://app.hackthebox.com/machines/university_
@@ -14,6 +14,33 @@ _https://app.hackthebox.com/machines/university_
 {: .text-center }
 
 ---
+
+## Summary
+
+
+This is my comprehensive walkthrough for solving **University**, a multi-stage Active Directory machine on Hack The Box. This box required deep enumeration across multiple hosts, careful abuse of a custom certificate-based authentication system, and chaining privilege escalations through misconfigured signing workflows, Windows scheduled task abuse, and Active Directory delegation misconfigurations.
+
+Initial enumeration of the public-facing university web portal revealed a certificate-based login requirement for professors by requesting a Certificate Sigining Request. After exploiting **CVE-2023-33733**, we gained access to the Domain Controller host as the user `WAO`, which allowed us to view the web application source code and uploaded certificate signing requests.
+
+From this foothold, we pivoted into the internal network, identifying the Domain Controller, several Windows servers, and a Linux machine. On one Windows server, we discovered scheduled PowerShell scripts in an automation directory executed with elevated privileges.
+
+By obtaining the Certificate Authority’s private key, we generated and self-signed a valid certificate impersonating a professor. This granted privileged access to the portal, enabling us to create new courses and upload lecture materials.
+
+Further investigation revealed that uploaded lectures were processed by automated scripts. By uploading a signed lecture ZIP containing a malicious `.URL` file pointing to a reverse shell and registering our own public GPG key in the portal, we were able to execute arbitrary commands on the web server and gain a foothold.
+
+We then leveraged **CVE-2023-21746 (LocalPotato)** to overwrite one of these privileged scripts (`wpad-cache-cleaner.ps1`) with our payload, causing it to execute under SYSTEM. This provided full local administrative access.
+
+With admin rights, we dumped the SAM, SYSTEM, and SECURITY registry hives, as well as LSASS memory, revealing a clear-text default password shared by multiple domain accounts. A password spraying attack confirmed that several high-value accounts, including those with WinRM access, used this same password.
+
+One such account, **Rose.L**, was a member of the **Account Operators** group with `ReadGMSAPassword` privileges over the managed service account **GMSA-PClient01\$**. This GMSA account had `AllowedToAct` privileges on the Domain Controller, enabling **Resource-Based Constrained Delegation (RBCD)**. Using the GMSA credentials, we impersonated a Domain Admin on the DC and executed commands with full domain privileges.
+
+This chain highlights the risks of exposed private keys in authentication systems, insecure GPG signing workflows, privileged scheduled tasks, shared default passwords, and overly permissive delegation rights in Active Directory.
+
+The machine offers multiple exploitation paths, especially after gaining access to several users some of whom belong to the Account Operators group.
+
+Throughout this engagement, I challenged myself to rely solely on **Sliver C2** and **Ligolo-ng** for payload generation, port forwarding, and network pivoting—deliberately avoiding Metasploit to deepen my understanding and hands-on experience with these powerful, open-source tools.
+
+Let’s walk through the exploitation in detail.
 
 ---
 
